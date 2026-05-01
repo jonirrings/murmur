@@ -362,13 +362,13 @@ export const users = sqliteTable('users', {
 
 ```bash
 # 1. 修改 src/db/schema.ts 后，自动生成迁移 SQL
-npx drizzle-kit generate
+pnpm drizzle-kit generate
 
 # 2. 应用迁移到本地 D1
-npx wrangler d1 migrations apply murmur-db --local
+pnpm wrangler d1 migrations apply murmur-db --local
 
 # 3. 应用迁移到远程 D1
-npx wrangler d1 migrations apply murmur-db --remote
+pnpm wrangler d1 migrations apply murmur-db --remote
 ```
 
 **Drizzle + D1 初始化**：
@@ -1735,7 +1735,7 @@ new_classes = ["CollaborationRoomDO", "RateLimiterDO"]
 | 协作房间权限泄露 | 非授权用户编辑笔记 | DO 校验每个连接的角色，viewer 的编辑操作被丢弃 |
 | 机器人注册 | 批量创建垃圾账号 | Cloudflare Turnstile 人机验证 + Rate Limiter 限流 |
 | API 滥用 | 暴力请求耗尽资源 | Cloudflare Rate Limiting Rules + DO 滑动窗口限流 |
-| shadcn/ui 组件体积 | 按需引入失控导致 bundle 膨胀 | 定期 `npx vite-bundle-visualizer` 审计；仅引入使用的组件 |
+| shadcn/ui 组件体积 | 按需引入失控导致 bundle 膨胀 | 定期 `pnpm vite-bundle-visualizer` 审计；仅引入使用的组件 |
 | Tailwind 类名冲突 | SSR 与 SPA 样式不一致 | Tailwind v4 content 扫描覆盖 SSR + SPA 路径；CI 中运行样式一致性检查 |
 
 ---

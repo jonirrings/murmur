@@ -147,7 +147,7 @@ app.onError((err, c) => {
 - **所有 DB 操作通过 Repository 层**：Service 不直接写 Drizzle 查询，调用 `repo.method()`
 - **Drizzle 优先**：不写原始 SQL，除非 Drizzle 不支持（如 `PRAGMA`）
 - **事务**：涉及多表写操作时使用 `db.transaction()`
-- **迁移**：修改 `src/db/schema.ts` 后运行 `npx drizzle-kit generate`，不手写 SQL
+- **迁移**：修改 `src/db/schema.ts` 后运行 `pnpm drizzle-kit generate`，不手写 SQL
 
 ### 3.5 React 组件
 

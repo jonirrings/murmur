@@ -12,9 +12,9 @@
 ### 任务
 
 - [ ] **1.1 项目初始化**
-  - `npm create cloudflare@latest murmur -- --template hono`
+  - `pnpm create cloudflare@latest murmur -- --template hono`
   - 配置 Vite（客户端 SPA 构建）、TypeScript、ESLint、Prettier
-  - 配置 Tailwind CSS v4 + shadcn/ui（`npx shadcn@latest init`）
+  - 配置 Tailwind CSS v4 + shadcn/ui（`pnpm dlx shadcn@latest init`）
   - 配置 Drizzle ORM + `drizzle.config.ts`
   - 配置 `wrangler.toml`（D1、KV、R2、DO 绑定）
 
