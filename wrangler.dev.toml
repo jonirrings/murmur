@@ -1,0 +1,29 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "murmur-dev"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+RP_ID = "localhost"
+ORIGIN = "http://localhost:8787"
+TURNSTILE_SITE_KEY = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "murmur-db-dev"
+database_id = "placeholder-dev"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "placeholder-dev"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "murmur-assets-dev"
+
+[durable_objects]
+bindings = [
+  { name = "COLLAB_DO", class_name = "CollaborationRoomDO" },
+  { name = "RATE_LIMITER_DO", class_name = "RateLimiterDO" },
+]

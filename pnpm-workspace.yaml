@@ -1,0 +1,5 @@
+allowBuilds:
+  esbuild: true
+  oniguruma: true
+  sharp: true
+  workerd: true

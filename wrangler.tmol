@@ -1,0 +1,37 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "murmur"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+RP_ID = "murmur.example.com"
+ORIGIN = "https://murmur.example.com"
+TURNSTILE_SITE_KEY = ""
+
+# D1 数据库
+[[d1_databases]]
+binding = "DB"
+database_name = "murmur-db"
+database_id = "placeholder-local-only"
+
+# KV 命名空间（SSR 缓存）
+[[kv_namespaces]]
+binding = "KV"
+id = "placeholder-local-only"
+
+# R2 存储桶（附件）
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "murmur-assets"
+
+# Durable Objects
+[durable_objects]
+bindings = [
+  { name = "COLLAB_DO", class_name = "CollaborationRoomDO" },
+  { name = "RATE_LIMITER_DO", class_name = "RateLimiterDO" },
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["CollaborationRoomDO", "RateLimiterDO"]
