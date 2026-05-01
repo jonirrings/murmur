@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.vinxi/
+.output/
+
+# Vite
+*.local
+
+# Wrangler
+.wrangler/
+.dev.vars
+.mf/
+
+# Drizzle
+drizzle/meta/
+!drizzle/meta/0000_snapshot.json
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test
+coverage/
+
+# Cache
+.cache/
+.eslintcache
