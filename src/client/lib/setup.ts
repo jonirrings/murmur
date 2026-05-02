@@ -16,8 +16,7 @@ interface AdminUser {
 export function useSetupStatus() {
   return useQuery({
     queryKey: ["setup", "status"],
-    queryFn: () =>
-      fetchApi<{ data: SetupStatus }>("/setup/status").then((r) => r.data),
+    queryFn: () => fetchApi<{ data: SetupStatus }>("/setup/status").then((r) => r.data),
   });
 }
 
@@ -30,7 +29,7 @@ export function useCreateAdmin() {
         body: JSON.stringify(input),
       }).then((r) => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["setup", "status"] });
+      void queryClient.invalidateQueries({ queryKey: ["setup", "status"] });
     },
   });
 }

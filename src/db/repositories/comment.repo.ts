@@ -57,12 +57,7 @@ export class CommentRepo {
   }
 
   /** List comments visible to the note author (own + approved users' approved comments) */
-  async findForAuthorByNoteId(
-    noteId: string,
-    authorUserId: string,
-    page: number,
-    limit: number,
-  ) {
+  async findForAuthorByNoteId(noteId: string, authorUserId: string, page: number, limit: number) {
     return this.db
       .select({
         id: comments.id,
@@ -92,12 +87,7 @@ export class CommentRepo {
   }
 
   /** List comments for the comment author (own comments that are not hidden) */
-  async findForCommenterByNoteId(
-    noteId: string,
-    commenterId: string,
-    page: number,
-    limit: number,
-  ) {
+  async findForCommenterByNoteId(noteId: string, commenterId: string, page: number, limit: number) {
     return this.db
       .select({
         id: comments.id,
@@ -161,9 +151,7 @@ export class CommentRepo {
     const result = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(
-        and(eq(comments.noteId, noteId), eq(comments.authorApproved, 0)),
-      )
+      .where(and(eq(comments.noteId, noteId), eq(comments.authorApproved, 0)))
       .get();
     return result?.count ?? 0;
   }
@@ -173,9 +161,7 @@ export class CommentRepo {
     const result = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(
-        and(eq(comments.authorId, userId), sql`${comments.createdAt} >= ${since}`),
-      )
+      .where(and(eq(comments.authorId, userId), sql`${comments.createdAt} >= ${since}`))
       .get();
     return result?.count ?? 0;
   }
@@ -191,11 +177,7 @@ export class CommentRepo {
   }
 
   /** Count comments by a specific user on a specific note in a time window */
-  async countByUserAndNoteSince(
-    userId: string,
-    noteId: string,
-    since: string,
-  ) {
+  async countByUserAndNoteSince(userId: string, noteId: string, since: string) {
     const result = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)

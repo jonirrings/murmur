@@ -14,7 +14,7 @@ function generateSlug(title: string): string {
 }
 
 function generateExcerpt(content: string, maxLen = 200): string {
-  const plain = content.replace(/[#*`\[\]()>_~|-]/g, "").trim();
+  const plain = content.replace(/[#*`[\]()>_~|-]/g, "").trim();
   return plain.length > maxLen ? plain.slice(0, maxLen) + "…" : plain;
 }
 
@@ -153,12 +153,7 @@ export class NoteService {
     return { items, total, page, limit };
   }
 
-  async listPublished(
-    page: number,
-    limit: number,
-    category?: NoteCategory,
-    tagSlug?: string,
-  ) {
+  async listPublished(page: number, limit: number, category?: NoteCategory, tagSlug?: string) {
     const [items, total] = await Promise.all([
       this.noteRepo.findPublished(page, limit, category, tagSlug),
       this.noteRepo.countPublished(category),

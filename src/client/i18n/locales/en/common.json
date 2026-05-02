@@ -1,0 +1,97 @@
+{
+  "app": {
+    "loading": "Loading...",
+    "notFound": "Page not found"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "myNotes": "My Notes",
+    "users": "Users",
+    "comments": "Comments",
+    "settings": "Settings",
+    "security": "Security",
+    "logout": "Sign out"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "approve": "Approve",
+    "reject": "Reject",
+    "previous": "Previous",
+    "next": "Next",
+    "loadMore": "Load more",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "back": "Back",
+    "create": "New note"
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "hidden": "Hidden",
+    "unhidden": "Unhidden",
+    "allStatus": "All statuses",
+    "allApproval": "All approval",
+    "allVisibility": "All visibility",
+    "normal": "Visible"
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hr ago",
+    "daysAgo": "{{count}} days ago"
+  },
+  "pagination": {
+    "totalNotes": "{{count}} notes",
+    "totalComments": "{{count}} comments",
+    "totalUsers": "{{count}} users"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "currentToggle": "Current: {{label}}, click to toggle"
+  },
+  "category": {
+    "note": "Note",
+    "inspiration": "Inspiration",
+    "tip": "Tip",
+    "knowledge": "Knowledge",
+    "all": "All categories"
+  },
+  "role": {
+    "admin": "Admin",
+    "author": "Author",
+    "commenter": "Commenter",
+    "all": "All roles",
+    "reApprove": "Re-approve"
+  },
+  "validation": {
+    "required": "This field is required",
+    "tooLong": "Content is too long",
+    "invalidEmail": "Please enter a valid email address"
+  },
+  "apiErrors": {
+    "internalError": "Internal server error",
+    "forbidden": "Access denied",
+    "notFound": "Resource not found",
+    "rateLimited": "Too many requests, please try again later",
+    "conflict": "Resource conflict",
+    "unauthorized": "Please sign in first"
+  },
+  "auth": {
+    "permissionDeniedDesc": "Author or admin permissions are required to access this page.",
+    "approvalPendingTitle": "Pending Approval",
+    "approvalPendingDesc": "Your account is awaiting admin approval."
+  },
+  "anonymous": "Anonymous",
+  "noTitle": "Untitled"
+}

@@ -3,7 +3,12 @@ import { zValidator } from "@hono/zod-validator";
 import { createTagSchema } from "@/shared/schemas/tag";
 import type { Env } from "@/auth/middleware";
 import { requireAdmin } from "@/auth/middleware";
-import { TagService, TagSlugConflictError, TagNotFoundError, TagInUseError } from "@/services/tag.service";
+import {
+  TagService,
+  TagSlugConflictError,
+  TagNotFoundError,
+  TagInUseError,
+} from "@/services/tag.service";
 
 const app = new Hono<Env>();
 
@@ -43,10 +48,7 @@ app.onError((err, c) => {
   if (err instanceof TagInUseError) {
     return c.json({ error: { code: "CONFLICT", message: err.message } }, 409);
   }
-  return c.json(
-    { error: { code: "INTERNAL_ERROR", message: "服务内部错误" } },
-    500,
-  );
+  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
 });
 
 export default app;

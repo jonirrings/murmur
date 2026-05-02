@@ -11,17 +11,19 @@ import attachmentsRoutes from "./routes/api/attachments";
 import commentsRoutes from "./routes/api/comments";
 import settingsRoutes from "./routes/api/settings";
 import meRoutes from "./routes/api/me";
+import searchRoutes from "./routes/api/search";
+import collabRoutes from "./routes/api/collab";
+import visitorCounterRoutes from "./routes/api/visitor-counter";
+import viewStatsRoutes from "./routes/api/view-stats";
 import ssrRoutes from "./routes/ssr";
+import seoRoutes from "./routes/seo";
 
 const app = new Hono<Env>();
 
 // Global error handler
 app.onError((err, c) => {
   console.error("Unhandled error:", err);
-  return c.json(
-    { error: { code: "INTERNAL_ERROR", message: "服务内部错误" } },
-    500,
-  );
+  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
 });
 
 // Inject DB into all routes
@@ -30,19 +32,17 @@ app.use("*", injectDb);
 // Mount better-auth handler at /api/auth
 app.on(["GET", "POST"], "/api/auth/**", async (c) => {
   // Rate limit magic-link login attempts by IP
-  if (
-    c.req.method === "POST" &&
-    c.req.path.endsWith("/magic-link/send") &&
-    c.env.RATE_LIMITER_DO
-  ) {
+  if (c.req.method === "POST" && c.req.path.endsWith("/magic-link/send") && c.env.RATE_LIMITER_DO) {
     const ip = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for") ?? "unknown";
     const id = c.env.RATE_LIMITER_DO.idFromName("global");
     const stub = c.env.RATE_LIMITER_DO.get(id);
-    const check = await stub.fetch(new Request("https://do/check", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: `login:${ip}`, limit: 10, windowMs: 60_000 }),
-    }));
+    const check = await stub.fetch(
+      new Request("https://do/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: `login:${ip}`, limit: 10, windowMs: 60_000 }),
+      }),
+    );
     const result = await check.json<{ allowed: boolean }>();
     if (!result.allowed) {
       return c.json(
@@ -66,12 +66,41 @@ app.route("/api/attachments", attachmentsRoutes);
 app.route("/api", commentsRoutes);
 app.route("/api/admin/settings", settingsRoutes);
 app.route("/api/me", meRoutes);
+app.route("/api/search", searchRoutes);
+app.route("/api/collab", collabRoutes);
+app.route("/api/visitor-counter", visitorCounterRoutes);
+app.route("/api/admin/view-stats", viewStatsRoutes);
 
 // SSR routes (public pages)
 app.route("/", ssrRoutes);
 
-// SPA fallback: serve index.html for /setup, /login, /admin/*
-// In production, these are served from the Vite-built client assets
-// In development, the Vite dev server handles this
+// SEO routes
+app.route("/", seoRoutes);
+
+// SPA fallback: let Workers Assets serve index.html for client-side routes
+app.get("/setup", serveSpaAssets);
+app.get("/login", serveSpaAssets);
+app.get("/admin/*", serveSpaAssets);
+
+// Serve static assets via Workers Assets binding
+app.get("/assets/*", serveStaticAssets);
+
+async function serveSpaAssets(c: import("hono").Context<import("./auth/middleware").Env>) {
+  const assets = c.env.ASSETS;
+  if (assets) {
+    const response = await assets.fetch(new Request(new URL("/index.html", c.req.url)));
+    if (response.status === 200) return response;
+  }
+  return c.notFound();
+}
+
+async function serveStaticAssets(c: import("hono").Context<import("./auth/middleware").Env>) {
+  const assets = c.env.ASSETS;
+  if (assets) {
+    const response = await assets.fetch(c.req.raw);
+    if (response.status === 200) return response;
+  }
+  return c.notFound();
+}
 
 export default app;

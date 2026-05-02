@@ -18,30 +18,21 @@ import {
 const app = new Hono<Env>();
 
 /** GET /api/notes/:noteId/comments — List comments for a note */
-app.get(
-  "/notes/:noteId/comments",
-  zValidator("query", listCommentsQuerySchema),
-  async (c) => {
-    const { noteId } = c.req.param();
-    const query = c.req.valid("query");
-    const db = c.get("db");
-    const service = new CommentService(db);
+app.get("/notes/:noteId/comments", zValidator("query", listCommentsQuerySchema), async (c) => {
+  const { noteId } = c.req.param();
+  const query = c.req.valid("query");
+  const db = c.get("db");
+  const service = new CommentService(db);
 
-    // Try to get user from session (optional for this endpoint)
-    const user = c.get("user");
-    const viewer = user
-      ? { id: user.id, role: user.role, approvalStatus: user.approvalStatus }
-      : null;
+  // Try to get user from session (optional for this endpoint)
+  const user = c.get("user");
+  const viewer = user
+    ? { id: user.id, role: user.role, approvalStatus: user.approvalStatus }
+    : null;
 
-    const result = await service.listForNote(
-      noteId,
-      viewer,
-      query.page,
-      query.limit,
-    );
-    return c.json({ data: result });
-  },
-);
+  const result = await service.listForNote(noteId, viewer, query.page, query.limit);
+  return c.json({ data: result });
+});
 
 /** POST /api/notes/:noteId/comments — Create a comment */
 app.post(
@@ -85,10 +76,7 @@ app.post(
           rateResult.reason === "PER_NOTE_RATE_LIMITED"
             ? "每篇笔记每分钟只能评论一次"
             : "评论频率过高，请稍后再试";
-        return c.json(
-          { error: { code: "RATE_LIMITED", message } },
-          429,
-        );
+        return c.json({ error: { code: "RATE_LIMITED", message } }, 429);
       }
     }
 
@@ -110,29 +98,19 @@ app.patch(
     const service = new CommentService(db);
 
     if (input.authorApproved !== undefined) {
-      const comment = await service.reviewByAuthor(
-        id,
-        user.id,
-        input.authorApproved,
-      );
+      const comment = await service.reviewByAuthor(id, user.id, input.authorApproved);
       return c.json({ data: comment });
     }
 
     if (input.adminHidden !== undefined) {
       if (user.role !== "admin") {
-        return c.json(
-          { error: { code: "FORBIDDEN", message: "需要管理员权限" } },
-          403,
-        );
+        return c.json({ error: { code: "FORBIDDEN", message: "需要管理员权限" } }, 403);
       }
       const comment = await service.reviewByAdmin(id, input.adminHidden);
       return c.json({ data: comment });
     }
 
-    return c.json(
-      { error: { code: "VALIDATION_ERROR", message: "请提供审核操作" } },
-      400,
-    );
+    return c.json({ error: { code: "VALIDATION_ERROR", message: "请提供审核操作" } }, 400);
   },
 );
 
@@ -151,7 +129,7 @@ app.delete("/comments/:id", requireAuth, async (c) => {
 app.get("/admin/comments/pending", requireAdmin, async (c) => {
   const db = c.get("db");
   const { comments, user } = await import("@/db/schema");
-  const { eq, and, desc } = await import("drizzle-orm");
+  const { eq, desc } = await import("drizzle-orm");
 
   const pendingComments = await db
     .select({
@@ -183,21 +161,12 @@ app.onError((err, c) => {
     return c.json({ error: { code: "FORBIDDEN", message: err.message } }, 403);
   }
   if (err instanceof CommentNoteNotPublishedError) {
-    return c.json(
-      { error: { code: "VALIDATION_ERROR", message: err.message } },
-      400,
-    );
+    return c.json({ error: { code: "VALIDATION_ERROR", message: err.message } }, 400);
   }
   if (err instanceof CommentDuplicateError) {
-    return c.json(
-      { error: { code: "DUPLICATE", message: err.message } },
-      409,
-    );
+    return c.json({ error: { code: "DUPLICATE", message: err.message } }, 409);
   }
-  return c.json(
-    { error: { code: "INTERNAL_ERROR", message: "服务内部错误" } },
-    500,
-  );
+  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
 });
 
 export default app;
@@ -208,10 +177,12 @@ async function checkRateLimit(
   limit: number,
   windowMs: number,
 ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
-  const res = await stub.fetch(new Request("https://do/check", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key, limit, windowMs }),
-  }));
+  const res = await stub.fetch(
+    new Request("https://do/check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, limit, windowMs }),
+    }),
+  );
   return res.json();
 }

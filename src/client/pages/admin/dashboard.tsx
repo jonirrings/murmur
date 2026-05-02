@@ -1,5 +1,7 @@
 import { useMe, useAdminStats } from "@/client/queries/me";
-import { Link } from "react-router-dom";
+import { useSiteWideOnlineCount } from "@/client/queries/visitor-counter";
+import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 export function AdminDashboard() {
   const { data: me } = useMe();
@@ -9,67 +11,76 @@ export function AdminDashboard() {
     return <AdminDashboardView />;
   }
 
+  return <AuthorDashboard />;
+}
+
+function AuthorDashboard() {
+  const { t } = useTranslation("admin");
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-        欢迎回来
+        {t("dashboard.welcome")}
       </h2>
-      <p className="text-gray-600 dark:text-gray-400">
-        你可以在管理面板中管理你的笔记和评论。
-      </p>
+      <p className="text-gray-600 dark:text-gray-400">{t("dashboard.welcomeDesc")}</p>
     </div>
   );
 }
 
 function AdminDashboardView() {
   const { data: stats, isLoading } = useAdminStats();
+  const { data: visitorCounts } = useSiteWideOnlineCount();
+  const { t } = useTranslation("admin");
+  const { t: tc } = useTranslation("common");
+
+  const totalOnline = visitorCounts ? Object.values(visitorCounts).reduce((a, b) => a + b, 0) : 0;
 
   const statCards = [
     {
-      label: "已发布笔记",
+      label: t("dashboard.publishedNotes"),
       value: stats?.publishedNotes ?? 0,
       href: "/admin",
     },
     {
-      label: "待审批用户",
+      label: t("dashboard.pendingUsers"),
       value: stats?.pendingUsers ?? 0,
       href: "/admin/users",
     },
     {
-      label: "待审核评论",
+      label: t("dashboard.pendingComments"),
       value: stats?.pendingComments ?? 0,
       href: "/admin/comments",
     },
     {
-      label: "总用户数",
+      label: t("dashboard.totalUsers"),
       value: stats?.totalUsers ?? 0,
       href: "/admin/users",
+    },
+    {
+      label: t("dashboard.onlineVisitors"),
+      value: totalOnline,
+      href: "/admin",
     },
   ];
 
   if (isLoading) {
-    return <p className="text-gray-400">加载中...</p>;
+    return <p className="text-gray-400">{tc("app.loading")}</p>;
   }
 
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-        仪表盘
+        {t("dashboard.title")}
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {statCards.map((stat) => (
           <Link
             key={stat.label}
             to={stat.href}
             className="rounded-lg border border-gray-200 bg-white p-6 hover:shadow-md transition-shadow dark:border-gray-700 dark:bg-gray-800"
           >
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {stat.label}
-            </p>
-            <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
-              {stat.value}
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
           </Link>
         ))}
       </div>

@@ -1,0 +1,60 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "murmur"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# 客户端静态资源
+[assets]
+directory = "dist/client"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+# ─── 环境变量 ───────────────────────────────────────────────────────
+# 非敏感默认值可放在 [vars] 中。
+# 环境相关的变量（RP_ID, ORIGIN, TURNSTILE_SITE_KEY 等）请通过以下方式设置：
+#   本地开发 → .dev.vars 文件（已 gitignore）
+#   生产环境 → Cloudflare Dashboard → Workers → Settings → Variables
+#             或 wrangler secret put <KEY>（用于敏感值）
+# ────────────────────────────────────────────────────────────────────
+
+# D1 数据库
+# TODO: 运行 `wrangler d1 create murmur-db` 后替换 database_id
+[[d1_databases]]
+binding = "DB"
+database_name = "murmur-db"
+database_id = "placeholder-local-only"
+
+# KV 命名空间（SSR 缓存）
+# TODO: 运行 `wrangler kv namespace create KV` 后替换 id
+[[kv_namespaces]]
+binding = "KV"
+id = "placeholder-local-only"
+
+# R2 存储桶（附件）
+# TODO: 运行 `wrangler r2 bucket create murmur-assets`（如尚不存在）
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "murmur-assets"
+
+# Durable Objects
+[durable_objects]
+bindings = [
+  { name = "COLLAB_DO", class_name = "CollaborationRoomDO" },
+  { name = "RATE_LIMITER_DO", class_name = "RateLimiterDO" },
+  { name = "VISITOR_COUNTER_DO", class_name = "VisitorCounterDO" },
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["CollaborationRoomDO", "RateLimiterDO"]
+
+[[migrations]]
+tag = "v2"
+new_classes = ["VisitorCounterDO"]
+
+# Cron Triggers — periodic cleanup
+[triggers]
+crons = ["*/30 * * * *"]

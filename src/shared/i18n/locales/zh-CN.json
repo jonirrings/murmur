@@ -1,0 +1,22 @@
+{
+  "noNotes": "暂无笔记",
+  "noComments": "暂无评论",
+  "nextPage": "下一页",
+  "commentsHeading": "评论 ({{count}})",
+  "noteNotFound": "笔记不存在",
+  "anonymous": "匿名",
+  "tag": "标签: {{slug}}",
+  "previewExpired": "预览已过期",
+  "previewLinkExpired": "预览链接已过期",
+  "previewLinkExpiredDesc": "请联系作者获取新的预览链接。",
+  "previewLinkInvalid": "预览链接无效",
+  "previewMode": "预览模式",
+  "preview": "预览",
+  "category": "分类: {{slug}}",
+  "category.note": "笔记",
+  "category.inspiration": "灵感",
+  "category.tip": "技巧",
+  "category.knowledge": "知识",
+  "allNotes": "全部",
+  "categoryNotFound": "分类不存在"
+}

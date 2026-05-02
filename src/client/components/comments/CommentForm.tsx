@@ -2,9 +2,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateComment } from "@/client/queries/comments";
+import { useTranslation } from "react-i18next";
 
 const commentSchema = z.object({
-  content: z.string().min(1, "评论不能为空").max(2000, "评论最多 2000 字"),
+  content: z.string().min(1).max(200),
 });
 
 type CommentFormInput = z.infer<typeof commentSchema>;
@@ -15,6 +16,7 @@ interface CommentFormProps {
 
 export function CommentForm({ noteId }: CommentFormProps) {
   const createComment = useCreateComment(noteId);
+  const { t } = useTranslation("comments");
   const {
     register,
     handleSubmit,
@@ -40,22 +42,22 @@ export function CommentForm({ noteId }: CommentFormProps) {
           {...register("content")}
           rows={3}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-          placeholder="写下你的评论..."
+          placeholder={t("form.placeholder")}
         />
         {errors.content && (
-          <p className="mt-1 text-xs text-red-500">{errors.content.message}</p>
+          <p className="mt-1 text-xs text-red-500">
+            {errors.content.type === "too_small" ? t("form.emptyError") : t("form.tooLongError")}
+          </p>
         )}
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">
-          {createComment.isError && "评论失败，请稍后重试"}
-        </span>
+        <span className="text-xs text-gray-400">{createComment.isError && t("form.failed")}</span>
         <button
           type="submit"
           disabled={isSubmitting}
           className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {isSubmitting ? "提交中..." : "发表评论"}
+          {isSubmitting ? t("form.submitting") : t("form.submit")}
         </button>
       </div>
     </form>

@@ -1,5 +1,7 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useSession } from "@/client/lib/auth-client";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 interface RequireAuthProps {
   children: React.ReactNode;
@@ -7,28 +9,31 @@ interface RequireAuthProps {
 }
 
 export function RequireAuth({ children, requireAdmin = false }: RequireAuthProps) {
+  const { t } = useTranslation("common");
   const { data, isPending } = useSession();
-  const location = useLocation();
+  const navigate = useNavigate();
+  const routerState = useRouterState();
+  const location = routerState.location;
+
+  useEffect(() => {
+    if (!isPending && !data) {
+      void navigate({ to: "/login", replace: true });
+    }
+  }, [isPending, data, navigate, location]);
 
   if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">加载中...</p>
+        <p className="text-gray-500">{t("app.loading")}</p>
       </div>
     );
   }
 
   if (!data) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return null;
   }
 
-  const user = data.user;
-
-  // We need to check approvalStatus and role from the server-side user data
-  // better-auth session doesn't include custom fields directly
-  // For now, we'll make a separate API call or rely on the admin layout's own check
   if (requireAdmin) {
-    // The AdminLayout handles its own auth check, so this is a secondary guard
     return <>{children}</>;
   }
 

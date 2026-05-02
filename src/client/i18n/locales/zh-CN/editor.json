@@ -1,0 +1,30 @@
+{
+  "toolbar": {
+    "heading": "标题",
+    "bold": "粗体",
+    "italic": "斜体",
+    "code": "代码",
+    "link": "链接",
+    "quote": "引用",
+    "unorderedList": "无序列表",
+    "orderedList": "有序列表",
+    "codeBlock": "代码块"
+  },
+  "collab": {
+    "collaborating": "{{count}} 人正在协作",
+    "connected": "已连接",
+    "disconnected": "未连接",
+    "p2p": "P2P",
+    "latency": "{{ms}}ms"
+  },
+  "image": {
+    "uploadTitle": "上传图片",
+    "uploadFailed": "图片上传失败，请重试"
+  },
+  "editor": {
+    "editMode": "编辑",
+    "previewMode": "预览",
+    "titlePlaceholder": "标题",
+    "contentPlaceholder": "开始写作..."
+  }
+}

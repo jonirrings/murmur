@@ -37,10 +37,7 @@ export class RateLimiterDO implements DurableObject {
     try {
       body = (await request.json()) as RateCheckRequest;
     } catch {
-      return Response.json(
-        { error: "Invalid JSON" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
     const { key, limit, windowMs } = body;
@@ -65,9 +62,7 @@ export class RateLimiterDO implements DurableObject {
     if (currentCount >= limit) {
       await this.ensureAlarm(now, windowMs);
       const resetAt =
-        active.length > 0
-          ? Math.min(...active.map((e) => e.ts)) + windowMs
-          : now + windowMs;
+        active.length > 0 ? Math.min(...active.map((e) => e.ts)) + windowMs : now + windowMs;
 
       const response: RateCheckResponse = {
         allowed: false,
@@ -108,7 +103,7 @@ export class RateLimiterDO implements DurableObject {
     const now = Date.now();
     const maxAge = 3_600_000; // Keep entries for max 1 hour
     const list = await this.state.storage.list({ prefix: "bucket:" });
-    for await (const [key, value] of list) {
+    for (const [key, value] of list) {
       const entries = value as BucketEntry[];
       const active = entries.filter((e) => e.ts > now - maxAge);
       if (active.length === 0) {
@@ -121,7 +116,7 @@ export class RateLimiterDO implements DurableObject {
     // Re-schedule alarm if there are still entries
     const remaining = await this.state.storage.list({ prefix: "bucket:" });
     let hasEntries = false;
-    for await (const _ of remaining) {
+    for (const _ of remaining) {
       hasEntries = true;
       break;
     }

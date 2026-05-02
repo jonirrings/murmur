@@ -21,20 +21,16 @@ interface CommentList {
   limit: number;
 }
 
-export function useComments(
-  noteId: string,
-  page?: number,
-  limit?: number,
-) {
+export function useComments(noteId: string, page?: number, limit?: number) {
   return useQuery({
     queryKey: ["comments", noteId, { page, limit }],
     queryFn: () => {
       const params = new URLSearchParams();
       if (page) params.set("page", String(page));
       if (limit) params.set("limit", String(limit));
-      return fetchApi<{ data: CommentList }>(
-        `/notes/${noteId}/comments?${params.toString()}`,
-      ).then((r) => r.data);
+      return fetchApi<{ data: CommentList }>(`/notes/${noteId}/comments?${params.toString()}`).then(
+        (r) => r.data,
+      );
     },
     enabled: !!noteId,
   });
@@ -49,7 +45,7 @@ export function useCreateComment(noteId: string) {
         body: JSON.stringify(input),
       }).then((r) => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", noteId] });
+      void queryClient.invalidateQueries({ queryKey: ["comments", noteId] });
     },
   });
 }
@@ -57,11 +53,7 @@ export function useCreateComment(noteId: string) {
 export function useReviewComment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: {
-      id: string;
-      authorApproved?: boolean;
-      adminHidden?: boolean;
-    }) => {
+    mutationFn: (input: { id: string; authorApproved?: boolean; adminHidden?: boolean }) => {
       const { id, ...body } = input;
       return fetchApi<{ data: Comment }>(`/comments/${id}/review`, {
         method: "PATCH",
@@ -69,8 +61,8 @@ export function useReviewComment() {
       }).then((r) => r.data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "comments"] });
+      void queryClient.invalidateQueries({ queryKey: ["comments"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "comments"] });
     },
   });
 }
@@ -83,7 +75,7 @@ export function useDeleteComment() {
         method: "DELETE",
       }).then((r) => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      void queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
 }
@@ -91,10 +83,7 @@ export function useDeleteComment() {
 export function usePendingComments() {
   return useQuery({
     queryKey: ["admin", "comments", "pending"],
-    queryFn: () =>
-      fetchApi<{ data: Comment[] }>("/admin/comments/pending").then(
-        (r) => r.data,
-      ),
+    queryFn: () => fetchApi<{ data: Comment[] }>("/admin/comments/pending").then((r) => r.data),
   });
 }
 
@@ -116,9 +105,9 @@ export function useAdminComments(params?: {
         searchParams.set("authorApproved", String(params.authorApproved));
       if (params?.adminHidden !== undefined)
         searchParams.set("adminHidden", String(params.adminHidden));
-      return fetchApi<{ data: CommentList }>(
-        `/admin/comments?${searchParams.toString()}`,
-      ).then((r) => r.data);
+      return fetchApi<{ data: CommentList }>(`/admin/comments?${searchParams.toString()}`).then(
+        (r) => r.data,
+      );
     },
   });
 }

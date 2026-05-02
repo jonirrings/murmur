@@ -1,7 +1,6 @@
 import type { Database } from "@/db/client";
 import { CommentRepo } from "@/db/repositories/comment.repo";
 import { NoteRepo } from "@/db/repositories/note.repo";
-import type { CreateCommentInput, ReviewCommentInput } from "@/shared/schemas/comment";
 import { COMMENTS_PER_PAGE } from "@/shared/constants";
 
 export class CommentService {
@@ -81,23 +80,13 @@ export class CommentService {
     const isNoteAuthor = note && viewer?.id === note.authorId;
 
     if (isNoteAuthor) {
-      const items = await this.commentRepo.findForAuthorByNoteId(
-        noteId,
-        viewer!.id!,
-        page,
-        limit,
-      );
+      const items = await this.commentRepo.findForAuthorByNoteId(noteId, viewer!.id!, page, limit);
       const total = await this.commentRepo.countByNoteId(noteId);
       return { items, total, page, limit };
     }
 
     if (viewer?.id) {
-      const items = await this.commentRepo.findForCommenterByNoteId(
-        noteId,
-        viewer.id,
-        page,
-        limit,
-      );
+      const items = await this.commentRepo.findForCommenterByNoteId(noteId, viewer.id, page, limit);
       const total = await this.commentRepo.countByNoteId(noteId);
       return { items, total, page, limit };
     }
@@ -109,11 +98,7 @@ export class CommentService {
   }
 
   /** Note author approves/rejects a comment */
-  async reviewByAuthor(
-    commentId: string,
-    noteAuthorId: string,
-    approved: boolean,
-  ) {
+  async reviewByAuthor(commentId: string, noteAuthorId: string, approved: boolean) {
     const comment = await this.commentRepo.findById(commentId);
     if (!comment) throw new CommentNotFoundError();
 
@@ -168,10 +153,7 @@ export class CommentService {
 
     // Per-hour check
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const hourlyCount = await this.commentRepo.countByUserSince(
-      userId,
-      oneHourAgo,
-    );
+    const hourlyCount = await this.commentRepo.countByUserSince(userId, oneHourAgo);
     if (hourlyCount >= 20) {
       return { allowed: false, reason: "HOURLY_RATE_LIMITED" };
     }

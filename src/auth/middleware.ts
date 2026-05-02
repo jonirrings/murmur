@@ -73,29 +73,21 @@ export const requireApproved = createMiddleware<Env>(async (c, next) => {
     return c.json({ error: { code: "UNAUTHORIZED", message: "请先登录" } }, 401);
   }
   if (session.approvalStatus !== "approved") {
-    return c.json(
-      { error: { code: "FORBIDDEN", message: "账号尚未通过审批" } },
-      403,
-    );
+    return c.json({ error: { code: "FORBIDDEN", message: "账号尚未通过审批" } }, 403);
   }
   c.set("user", session);
   await next();
 });
 
 /** Check if role meets or exceeds the required level */
-function hasRole(
-  userRole: string,
-  requiredRole: "admin" | "author" | "commenter",
-): boolean {
+function hasRole(userRole: string, requiredRole: "admin" | "author" | "commenter"): boolean {
   const userLevel = ROLE_HIERARCHY[userRole as keyof typeof ROLE_HIERARCHY] ?? 0;
   const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? 0;
   return userLevel >= requiredLevel;
 }
 
 /** Extract session from better-auth cookie/header and fetch user from DB */
-async function getSession(
-  c: Context<Env>,
-): Promise<Env["Variables"]["user"] | null> {
+async function getSession(c: Context<Env>): Promise<Env["Variables"]["user"] | null> {
   try {
     const db = c.get("db");
     const auth = createAuth(db, c.env);

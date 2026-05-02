@@ -1,0 +1,31 @@
+{
+  "form": {
+    "placeholder": "写下你的评论...",
+    "submit": "发表评论",
+    "submitting": "提交中...",
+    "emptyError": "评论不能为空",
+    "tooLongError": "评论最多 2000 字",
+    "failed": "评论失败，请稍后重试"
+  },
+  "list": {
+    "loading": "加载评论中...",
+    "loadError": "加载评论失败",
+    "heading": "评论 ({{count}})",
+    "empty": "暂无评论",
+    "loadMore": "加载更多"
+  },
+  "item": {
+    "pending": "待审核",
+    "hidden": "已隐藏"
+  },
+  "review": {
+    "approve": "通过",
+    "reject": "拒绝",
+    "hide": "隐藏",
+    "unhide": "取消隐藏"
+  },
+  "admin": {
+    "title": "评论管理",
+    "noteLabel": "笔记:"
+  }
+}

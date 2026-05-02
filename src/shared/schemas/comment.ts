@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
 export const createCommentSchema = z.object({
-  content: z.string().min(1).max(2000),
+  content: z.string().min(1).max(200),
   noteId: z.string().min(1),
 });
 

@@ -31,10 +31,7 @@ export class UserRepo {
       .get();
   }
 
-  async updateApprovalStatus(
-    id: string,
-    approvalStatus: "pending" | "approved" | "rejected",
-  ) {
+  async updateApprovalStatus(id: string, approvalStatus: "pending" | "approved" | "rejected") {
     return this.db
       .update(user)
       .set({ approvalStatus, updatedAt: new Date().toISOString() })
@@ -44,11 +41,7 @@ export class UserRepo {
   }
 
   async findPending() {
-    return this.db
-      .select()
-      .from(user)
-      .where(eq(user.approvalStatus, "pending"))
-      .all();
+    return this.db.select().from(user).where(eq(user.approvalStatus, "pending")).all();
   }
 
   async findAll(
@@ -60,8 +53,7 @@ export class UserRepo {
     },
   ) {
     const conditions = [];
-    if (filters?.approvalStatus)
-      conditions.push(eq(user.approvalStatus, filters.approvalStatus));
+    if (filters?.approvalStatus) conditions.push(eq(user.approvalStatus, filters.approvalStatus));
     if (filters?.role) conditions.push(eq(user.role, filters.role));
 
     const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -84,15 +76,12 @@ export class UserRepo {
       .all();
   }
 
-  async count(
-    filters?: {
-      approvalStatus?: "pending" | "approved" | "rejected";
-      role?: "admin" | "author" | "commenter";
-    },
-  ) {
+  async count(filters?: {
+    approvalStatus?: "pending" | "approved" | "rejected";
+    role?: "admin" | "author" | "commenter";
+  }) {
     const conditions = [];
-    if (filters?.approvalStatus)
-      conditions.push(eq(user.approvalStatus, filters.approvalStatus));
+    if (filters?.approvalStatus) conditions.push(eq(user.approvalStatus, filters.approvalStatus));
     if (filters?.role) conditions.push(eq(user.role, filters.role));
 
     const where = conditions.length > 0 ? and(...conditions) : undefined;

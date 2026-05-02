@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAdminSettings, useUpdateSettings } from "@/client/queries/admin";
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 const DEFAULT_SETTINGS: Record<string, string> = {
   site_title: "Murmur",
-  site_description: "一个安静的笔记空间",
+  site_description: i18next.t("admin:settings.defaultDescription"),
   comment_moderation_enabled: "true",
   posts_per_page: "10",
   comments_per_page: "20",
@@ -15,6 +17,8 @@ export function AdminSettings() {
   const updateSettings = useUpdateSettings();
   const [form, setForm] = useState<Record<string, string>>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
+  const { t } = useTranslation("admin");
+  const { t: tc } = useTranslation("common");
 
   useEffect(() => {
     if (settings) {
@@ -29,19 +33,19 @@ export function AdminSettings() {
   };
 
   if (isLoading) {
-    return <p className="text-gray-400">加载中...</p>;
+    return <p className="text-gray-400">{tc("app.loading")}</p>;
   }
 
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-        站点设置
+        {t("settings.title")}
       </h2>
 
       <div className="max-w-lg space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            站点标题
+            {t("settings.siteTitle")}
           </label>
           <input
             type="text"
@@ -53,14 +57,12 @@ export function AdminSettings() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            站点描述
+            {t("settings.siteDescription")}
           </label>
           <textarea
             rows={3}
             value={form.site_description ?? ""}
-            onChange={(e) =>
-              setForm({ ...form, site_description: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, site_description: e.target.value })}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           />
         </div>
@@ -79,17 +81,15 @@ export function AdminSettings() {
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              启用评论审核
+              {t("settings.commentModeration")}
             </span>
           </label>
-          <p className="mt-1 text-xs text-gray-500">
-            开启后，评论需要作者审核后才会显示
-          </p>
+          <p className="mt-1 text-xs text-gray-500">{t("settings.commentModerationDesc")}</p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            每页笔记数
+            {t("settings.notesPerPage")}
           </label>
           <input
             type="number"
@@ -103,7 +103,7 @@ export function AdminSettings() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            每页评论数
+            {t("settings.commentsPerPage")}
           </label>
           <input
             type="number"
@@ -129,12 +129,10 @@ export function AdminSettings() {
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              允许新用户注册
+              {t("settings.allowRegistration")}
             </span>
           </label>
-          <p className="mt-1 text-xs text-gray-500">
-            关闭后，新用户将无法通过魔法链接注册
-          </p>
+          <p className="mt-1 text-xs text-gray-500">{t("settings.allowRegistrationDesc")}</p>
         </div>
 
         <div className="pt-4">
@@ -143,11 +141,9 @@ export function AdminSettings() {
             disabled={updateSettings.isPending}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {updateSettings.isPending ? "保存中..." : "保存设置"}
+            {updateSettings.isPending ? tc("actions.saving") : tc("actions.save")}
           </button>
-          {saved && (
-            <span className="ml-3 text-sm text-green-600">已保存</span>
-          )}
+          {saved && <span className="ml-3 text-sm text-green-600">{t("settings.saved")}</span>}
         </div>
       </div>
     </div>

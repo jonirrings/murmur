@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useAllUsers, useUpdateApproval, useUpdateRole } from "@/client/queries/admin";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
 
 export function AdminUsers() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [filterStatus, setFilterStatus] = useState<
-    "pending" | "approved" | "rejected" | undefined
-  >(undefined);
-  const [filterRole, setFilterRole] = useState<
-    "admin" | "author" | "commenter" | undefined
-  >(undefined);
+  const [filterStatus, setFilterStatus] = useState<"pending" | "approved" | "rejected" | undefined>(
+    undefined,
+  );
+  const [filterRole, setFilterRole] = useState<"admin" | "author" | "commenter" | undefined>(
+    undefined,
+  );
 
   const { data, isLoading } = useAllUsers({
     page,
@@ -18,6 +21,8 @@ export function AdminUsers() {
   });
   const updateApproval = useUpdateApproval();
   const updateRole = useUpdateRole();
+  const { t } = useTranslation("admin");
+  const { t: tc } = useTranslation("common");
 
   const users = data?.items ?? [];
   const total = data?.total ?? 0;
@@ -39,114 +44,109 @@ export function AdminUsers() {
   const statusLabel = (status: string) => {
     switch (status) {
       case "approved":
-        return "已通过";
+        return tc("status.approved");
       case "pending":
-        return "待审批";
+        return tc("status.pending");
       case "rejected":
-        return "已拒绝";
+        return tc("status.rejected");
       default:
         return status;
-    }
-  };
-
-  const roleLabel = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "管理员";
-      case "author":
-        return "作者";
-      case "commenter":
-        return "评论者";
-      default:
-        return role;
     }
   };
 
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-        用户管理
+        {t("users.title")}
       </h2>
 
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-4">
         <select
           value={filterStatus ?? ""}
           onChange={(e) => {
             setFilterStatus(
-              e.target.value as "pending" | "approved" | "rejected" | undefined || undefined,
+              (e.target.value as "pending" | "approved" | "rejected" | undefined) || undefined,
             );
             setPage(1);
           }}
           className="rounded border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
         >
-          <option value="">全部状态</option>
-          <option value="pending">待审批</option>
-          <option value="approved">已通过</option>
-          <option value="rejected">已拒绝</option>
+          <option value="">{tc("status.allStatus")}</option>
+          <option value="pending">{tc("status.pending")}</option>
+          <option value="approved">{tc("status.approved")}</option>
+          <option value="rejected">{tc("status.rejected")}</option>
         </select>
 
         <select
           value={filterRole ?? ""}
           onChange={(e) => {
             setFilterRole(
-              e.target.value as "admin" | "author" | "commenter" | undefined || undefined,
+              (e.target.value as "admin" | "author" | "commenter" | undefined) || undefined,
             );
             setPage(1);
           }}
           className="rounded border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
         >
-          <option value="">全部角色</option>
-          <option value="admin">管理员</option>
-          <option value="author">作者</option>
-          <option value="commenter">评论者</option>
+          <option value="">{tc("role.all")}</option>
+          <option value="admin">{tc("role.admin")}</option>
+          <option value="author">{tc("role.author")}</option>
+          <option value="commenter">{tc("role.commenter")}</option>
         </select>
 
-        <span className="text-sm text-gray-500">共 {total} 人</span>
+        <span className="text-sm text-gray-500">
+          {tc("pagination.totalUsers", { count: total })}
+        </span>
       </div>
 
       {isLoading ? (
-        <p className="text-gray-400">加载中...</p>
+        <p className="text-gray-400">{tc("app.loading")}</p>
       ) : users.length === 0 ? (
-        <p className="text-gray-400">暂无用户</p>
+        <p className="text-gray-400">{t("users.empty")}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="py-2 px-3 text-left font-medium text-gray-500">用户</th>
-                <th className="py-2 px-3 text-left font-medium text-gray-500">邮箱</th>
-                <th className="py-2 px-3 text-left font-medium text-gray-500">角色</th>
-                <th className="py-2 px-3 text-left font-medium text-gray-500">状态</th>
-                <th className="py-2 px-3 text-left font-medium text-gray-500">操作</th>
+                <th className="py-2 px-3 text-left font-medium text-gray-500">
+                  {t("users.tableUser")}
+                </th>
+                <th className="py-2 px-3 text-left font-medium text-gray-500">
+                  {t("users.tableEmail")}
+                </th>
+                <th className="py-2 px-3 text-left font-medium text-gray-500">
+                  {t("users.tableRole")}
+                </th>
+                <th className="py-2 px-3 text-left font-medium text-gray-500">
+                  {t("users.tableStatus")}
+                </th>
+                <th className="py-2 px-3 text-left font-medium text-gray-500">
+                  {t("users.tableActions")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr
-                  key={u.id}
-                  className="border-b border-gray-100 dark:border-gray-800"
-                >
+                <tr key={u.id} className="border-b border-gray-100 dark:border-gray-800">
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-2">
                       {u.image ? (
-                        <img
-                          src={u.image}
-                          alt=""
-                          className="h-6 w-6 rounded-full"
-                        />
+                        <img src={u.image} alt="" className="h-6 w-6 rounded-full" />
                       ) : (
                         <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center text-xs">
                           {u.name?.charAt(0) ?? "?"}
                         </div>
                       )}
-                      <span className="text-gray-900 dark:text-gray-100">
+                      <span
+                        className="text-gray-900 dark:text-gray-100 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+                        onClick={() =>
+                          void navigate({ to: "/admin/users/$userId", params: { userId: u.id } })
+                        }
+                      >
                         {u.name ?? "—"}
                       </span>
                     </div>
                   </td>
-                  <td className="py-2 px-3 text-gray-600 dark:text-gray-400">
-                    {u.email}
-                  </td>
+                  <td className="py-2 px-3 text-gray-600 dark:text-gray-400">{u.email}</td>
                   <td className="py-2 px-3">
                     <select
                       value={u.role}
@@ -159,9 +159,9 @@ export function AdminUsers() {
                       disabled={updateRole.isPending}
                       className="rounded border border-gray-300 px-2 py-0.5 text-xs dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                     >
-                      <option value="admin">管理员</option>
-                      <option value="author">作者</option>
-                      <option value="commenter">评论者</option>
+                      <option value="admin">{tc("role.admin")}</option>
+                      <option value="author">{tc("role.author")}</option>
+                      <option value="commenter">{tc("role.commenter")}</option>
                     </select>
                   </td>
                   <td className="py-2 px-3">
@@ -184,7 +184,7 @@ export function AdminUsers() {
                           disabled={updateApproval.isPending}
                           className="rounded px-2 py-0.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 disabled:opacity-50"
                         >
-                          通过
+                          {tc("actions.approve")}
                         </button>
                         <button
                           onClick={() =>
@@ -196,7 +196,7 @@ export function AdminUsers() {
                           disabled={updateApproval.isPending}
                           className="rounded px-2 py-0.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 disabled:opacity-50"
                         >
-                          拒绝
+                          {tc("actions.reject")}
                         </button>
                       </div>
                     )}
@@ -211,7 +211,7 @@ export function AdminUsers() {
                         disabled={updateApproval.isPending}
                         className="rounded px-2 py-0.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 disabled:opacity-50"
                       >
-                        重新通过
+                        {tc("role.reApprove")}
                       </button>
                     )}
                   </td>
@@ -229,7 +229,7 @@ export function AdminUsers() {
             disabled={page <= 1}
             className="rounded border border-gray-300 px-3 py-1 text-sm disabled:opacity-50 dark:border-gray-600"
           >
-            上一页
+            {tc("actions.previous")}
           </button>
           <span className="text-sm text-gray-500">
             {page} / {totalPages}
@@ -239,7 +239,7 @@ export function AdminUsers() {
             disabled={page >= totalPages}
             className="rounded border border-gray-300 px-3 py-1 text-sm disabled:opacity-50 dark:border-gray-600"
           >
-            下一页
+            {tc("actions.next")}
           </button>
         </div>
       )}

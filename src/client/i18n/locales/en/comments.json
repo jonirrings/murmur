@@ -1,0 +1,31 @@
+{
+  "form": {
+    "placeholder": "Write a comment...",
+    "submit": "Post comment",
+    "submitting": "Submitting...",
+    "emptyError": "Comment cannot be empty",
+    "tooLongError": "Comment must be under 2000 characters",
+    "failed": "Failed to post comment, please try again later"
+  },
+  "list": {
+    "loading": "Loading comments...",
+    "loadError": "Failed to load comments",
+    "heading": "Comments ({{count}})",
+    "empty": "No comments yet",
+    "loadMore": "Load more"
+  },
+  "item": {
+    "pending": "Pending",
+    "hidden": "Hidden"
+  },
+  "review": {
+    "approve": "Approve",
+    "reject": "Reject",
+    "hide": "Hide",
+    "unhide": "Unhide"
+  },
+  "admin": {
+    "title": "Comments",
+    "noteLabel": "Note:"
+  }
+}

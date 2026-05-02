@@ -12,6 +12,10 @@ export const user = sqliteTable("user", {
   image: text("image"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
+  // better-auth admin plugin
+  banned: integer("banned", { mode: "boolean" }).default(false),
+  banReason: text("ban_reason"),
+  banExpires: text("ban_expires"),
   // Murmur extensions
   role: text("role", {
     enum: ["admin", "author", "commenter"],
@@ -33,6 +37,7 @@ export const session = sqliteTable("session", {
   updatedAt: text("updated_at").notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
+  impersonatedBy: text("impersonated_by"),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -86,6 +91,7 @@ export const notes = sqliteTable(
       .notNull()
       .default("draft"),
     wordCount: integer("word_count").notNull().default(0),
+    viewCount: integer("view_count").notNull().default(0),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
     publishedAt: text("published_at"),
@@ -160,8 +166,51 @@ export const collabSessions = sqliteTable("collab_sessions", {
   noteId: text("note_id")
     .notNull()
     .references(() => notes.id, { onDelete: "cascade" }),
+  creatorId: text("creator_id").references(() => user.id, { onDelete: "set null" }),
+  role: text("role", { enum: ["editor", "viewer"] })
+    .notNull()
+    .default("editor"),
   token: text("token").unique(),
   isActive: integer("is_active").notNull().default(1),
   createdAt: text("created_at").notNull(),
   expiresAt: text("expires_at").notNull(),
 });
+
+// ─── better-auth passkey plugin ───
+export const passkey = sqliteTable(
+  "passkey",
+  {
+    id: text("id").primaryKey(),
+    name: text("name"),
+    publicKey: text("public_key").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    credentialID: text("credential_id").notNull(),
+    counter: integer("counter").notNull(),
+    deviceType: text("device_type").notNull(),
+    backedUp: integer("backed_up", { mode: "boolean" }).notNull(),
+    transports: text("transports"),
+    createdAt: text("created_at"),
+    aaguid: text("aaguid"),
+  },
+  (table) => [
+    index("idx_passkey_user_id").on(table.userId),
+    index("idx_passkey_credential_id").on(table.credentialID),
+  ],
+);
+
+// ─── better-auth twoFactor plugin ───
+export const twoFactor = sqliteTable(
+  "two_factor",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    secret: text("secret"),
+    backupCodes: text("backup_codes"),
+    verifiedAt: text("verified_at"),
+  },
+  (table) => [index("idx_two_factor_user_id").on(table.userId)],
+);

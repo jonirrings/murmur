@@ -1,0 +1,30 @@
+{
+  "toolbar": {
+    "heading": "Heading",
+    "bold": "Bold",
+    "italic": "Italic",
+    "code": "Code",
+    "link": "Link",
+    "quote": "Quote",
+    "unorderedList": "Bullet list",
+    "orderedList": "Numbered list",
+    "codeBlock": "Code block"
+  },
+  "collab": {
+    "collaborating": "{{count}} people collaborating",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "p2p": "P2P",
+    "latency": "{{ms}}ms"
+  },
+  "image": {
+    "uploadTitle": "Upload image",
+    "uploadFailed": "Image upload failed, please try again"
+  },
+  "editor": {
+    "editMode": "Edit",
+    "previewMode": "Preview",
+    "titlePlaceholder": "Title",
+    "contentPlaceholder": "Start writing..."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "noNotes": "No notes yet",
+  "noComments": "No comments yet",
+  "nextPage": "Next page",
+  "commentsHeading": "Comments ({{count}})",
+  "noteNotFound": "Note not found",
+  "anonymous": "Anonymous",
+  "tag": "Tag: {{slug}}",
+  "previewExpired": "Preview expired",
+  "previewLinkExpired": "Preview link has expired",
+  "previewLinkExpiredDesc": "Please contact the author for a new preview link.",
+  "previewLinkInvalid": "Invalid preview link",
+  "previewMode": "Preview mode",
+  "preview": "Preview",
+  "category": "Category: {{slug}}",
+  "category.note": "Note",
+  "category.inspiration": "Inspiration",
+  "category.tip": "Tip",
+  "category.knowledge": "Knowledge",
+  "allNotes": "All",
+  "categoryNotFound": "Category not found"
+}

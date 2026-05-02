@@ -35,12 +35,7 @@ export class NoteRepo {
       .all();
   }
 
-  async findPublished(
-    page: number,
-    limit: number,
-    category?: NoteCategory,
-    tagSlug?: string,
-  ) {
+  async findPublished(page: number, limit: number, category?: NoteCategory, tagSlug?: string) {
     const conditions = [eq(notes.status, "published")];
     if (category) conditions.push(eq(notes.category, category));
 

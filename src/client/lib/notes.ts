@@ -45,9 +45,7 @@ export function useNotes(params?: ListNotesParams) {
   return useQuery({
     queryKey: ["notes", params],
     queryFn: () =>
-      fetchApi<{ data: NoteList }>(`/notes?${searchParams.toString()}`).then(
-        (r) => r.data,
-      ),
+      fetchApi<{ data: NoteList }>(`/notes?${searchParams.toString()}`).then((r) => r.data),
   });
 }
 
@@ -61,17 +59,14 @@ export function useMyNotes(params?: ListNotesParams) {
   return useQuery({
     queryKey: ["notes", "my", params],
     queryFn: () =>
-      fetchApi<{ data: NoteList }>(`/notes/my?${searchParams.toString()}`).then(
-        (r) => r.data,
-      ),
+      fetchApi<{ data: NoteList }>(`/notes/my?${searchParams.toString()}`).then((r) => r.data),
   });
 }
 
 export function useNote(id: string) {
   return useQuery({
     queryKey: ["notes", id],
-    queryFn: () =>
-      fetchApi<{ data: Note }>(`/notes/${id}`).then((r) => r.data),
+    queryFn: () => fetchApi<{ data: Note }>(`/notes/${id}`).then((r) => r.data),
     enabled: !!id,
   });
 }
@@ -79,8 +74,7 @@ export function useNote(id: string) {
 export function useNoteBySlug(slug: string) {
   return useQuery({
     queryKey: ["notes", "slug", slug],
-    queryFn: () =>
-      fetchApi<{ data: Note }>(`/notes/slug/${slug}`).then((r) => r.data),
+    queryFn: () => fetchApi<{ data: Note }>(`/notes/slug/${slug}`).then((r) => r.data),
     enabled: !!slug,
   });
 }
@@ -99,7 +93,7 @@ export function useCreateNote() {
         body: JSON.stringify(input),
       }).then((r) => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      void queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 }
@@ -123,8 +117,8 @@ export function useUpdateNote() {
         body: JSON.stringify(input),
       }).then((r) => r.data),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["notes", variables.id] });
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      void queryClient.invalidateQueries({ queryKey: ["notes", variables.id] });
+      void queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 }
@@ -132,20 +126,14 @@ export function useUpdateNote() {
 export function usePublishNote() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      slug,
-    }: {
-      id: string;
-      slug?: string;
-    }) =>
+    mutationFn: ({ id, slug }: { id: string; slug?: string }) =>
       fetchApi<{ data: Note }>(`/notes/${id}/publish`, {
         method: "POST",
         body: JSON.stringify({ slug }),
       }).then((r) => r.data),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["notes", variables.id] });
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      void queryClient.invalidateQueries({ queryKey: ["notes", variables.id] });
+      void queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 }
@@ -158,8 +146,8 @@ export function useUnpublishNote() {
         method: "POST",
       }).then((r) => r.data),
     onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ["notes", id] });
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      void queryClient.invalidateQueries({ queryKey: ["notes", id] });
+      void queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 }
@@ -172,7 +160,7 @@ export function useDeleteNote() {
         method: "DELETE",
       }).then((r) => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      void queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 }

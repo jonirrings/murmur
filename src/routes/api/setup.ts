@@ -32,10 +32,7 @@ app.post("/admin", zValidator("json", setupAdminSchema), async (c) => {
   // Block if admin already exists
   const alreadySetup = await service.isSetupComplete();
   if (alreadySetup) {
-    return c.json(
-      { error: { code: "CONFLICT", message: "管理员已存在，无法重复初始化" } },
-      409,
-    );
+    return c.json({ error: { code: "CONFLICT", message: "管理员已存在，无法重复初始化" } }, 409);
   }
 
   const { name, email } = c.req.valid("json");

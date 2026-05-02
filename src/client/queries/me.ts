@@ -13,8 +13,7 @@ export interface MeInfo {
 export function useMe() {
   return useQuery({
     queryKey: ["me"],
-    queryFn: () =>
-      fetchApi<{ data: MeInfo }>("/me").then((r) => r.data),
+    queryFn: () => fetchApi<{ data: MeInfo }>("/me").then((r) => r.data),
     staleTime: 60_000,
   });
 }
@@ -29,7 +28,6 @@ export interface AdminStats {
 export function useAdminStats() {
   return useQuery({
     queryKey: ["admin", "stats"],
-    queryFn: () =>
-      fetchApi<{ data: AdminStats }>("/me/admin/stats").then((r) => r.data),
+    queryFn: () => fetchApi<{ data: AdminStats }>("/me/admin/stats").then((r) => r.data),
   });
 }

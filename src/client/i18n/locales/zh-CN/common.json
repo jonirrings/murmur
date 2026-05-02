@@ -1,0 +1,97 @@
+{
+  "app": {
+    "loading": "加载中...",
+    "notFound": "页面未找到"
+  },
+  "nav": {
+    "dashboard": "仪表盘",
+    "myNotes": "我的笔记",
+    "users": "用户管理",
+    "comments": "评论管理",
+    "settings": "站点设置",
+    "security": "安全设置",
+    "logout": "退出"
+  },
+  "actions": {
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "saving": "保存中...",
+    "saved": "已保存",
+    "publish": "发布",
+    "unpublish": "取消发布",
+    "approve": "通过",
+    "reject": "拒绝",
+    "previous": "上一页",
+    "next": "下一页",
+    "loadMore": "加载更多",
+    "confirm": "确认",
+    "cancel": "取消",
+    "back": "返回",
+    "create": "新建笔记"
+  },
+  "status": {
+    "draft": "草稿",
+    "published": "已发布",
+    "pending": "待审核",
+    "approved": "已通过",
+    "rejected": "已拒绝",
+    "hidden": "已隐藏",
+    "unhidden": "取消隐藏",
+    "allStatus": "全部状态",
+    "allApproval": "全部审核状态",
+    "allVisibility": "全部显示状态",
+    "normal": "正常显示"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}} 分钟前",
+    "hoursAgo": "{{count}} 小时前",
+    "daysAgo": "{{count}} 天前"
+  },
+  "pagination": {
+    "totalNotes": "共 {{count}} 篇",
+    "totalComments": "共 {{count}} 条",
+    "totalUsers": "共 {{count}} 人"
+  },
+  "theme": {
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统",
+    "currentToggle": "当前: {{label}}，点击切换"
+  },
+  "category": {
+    "note": "笔记",
+    "inspiration": "灵感",
+    "tip": "技巧",
+    "knowledge": "知识",
+    "all": "全部分类"
+  },
+  "role": {
+    "admin": "管理员",
+    "author": "作者",
+    "commenter": "评论者",
+    "all": "全部角色",
+    "reApprove": "重新通过"
+  },
+  "validation": {
+    "required": "此字段不能为空",
+    "tooLong": "内容过长",
+    "invalidEmail": "请输入有效的邮箱地址"
+  },
+  "apiErrors": {
+    "internalError": "服务内部错误",
+    "forbidden": "权限不足",
+    "notFound": "资源不存在",
+    "rateLimited": "操作过于频繁，请稍后再试",
+    "conflict": "资源冲突",
+    "unauthorized": "请先登录"
+  },
+  "auth": {
+    "permissionDeniedDesc": "需要作者或管理员权限才能访问此页面。",
+    "approvalPendingTitle": "等待审批",
+    "approvalPendingDesc": "您的账号正在等待管理员审批。"
+  },
+  "anonymous": "匿名用户",
+  "noTitle": "无标题"
+}

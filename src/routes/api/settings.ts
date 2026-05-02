@@ -27,22 +27,15 @@ app.get("/", requireAdmin, async (c) => {
 });
 
 /** PATCH /api/admin/settings — Update settings */
-app.patch(
-  "/",
-  requireAdmin,
-  zValidator("json", updateSettingsSchema),
-  async (c) => {
-    const { settings } = c.req.valid("json");
-    const kv = c.env.KV;
+app.patch("/", requireAdmin, zValidator("json", updateSettingsSchema), async (c) => {
+  const { settings } = c.req.valid("json");
+  const kv = c.env.KV;
 
-    await Promise.all(
-      Object.entries(settings).map(([key, value]) =>
-        kv.put(`${SETTINGS_PREFIX}${key}`, value),
-      ),
-    );
+  await Promise.all(
+    Object.entries(settings).map(([key, value]) => kv.put(`${SETTINGS_PREFIX}${key}`, value)),
+  );
 
-    return c.json({ data: { ok: true } });
-  },
-);
+  return c.json({ data: { ok: true } });
+});
 
 export default app;

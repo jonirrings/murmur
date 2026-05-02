@@ -4,10 +4,15 @@ main = "src/index.ts"
 compatibility_date = "2025-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-[vars]
-RP_ID = "localhost"
-ORIGIN = "http://localhost:8787"
-TURNSTILE_SITE_KEY = ""
+# 客户端静态资源
+[assets]
+directory = "dist/client"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+# 环境变量由 .dev.vars 提供，不在此处设置
 
 [[d1_databases]]
 binding = "DB"
@@ -26,4 +31,17 @@ bucket_name = "murmur-assets-dev"
 bindings = [
   { name = "COLLAB_DO", class_name = "CollaborationRoomDO" },
   { name = "RATE_LIMITER_DO", class_name = "RateLimiterDO" },
+  { name = "VISITOR_COUNTER_DO", class_name = "VisitorCounterDO" },
 ]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["CollaborationRoomDO", "RateLimiterDO"]
+
+[[migrations]]
+tag = "v2"
+new_classes = ["VisitorCounterDO"]
+
+# Cron Triggers — periodic cleanup (dev)
+[triggers]
+crons = ["*/30 * * * *"]

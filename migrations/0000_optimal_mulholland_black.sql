@@ -29,11 +29,14 @@ CREATE TABLE `attachments` (
 CREATE TABLE `collab_sessions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`note_id` text NOT NULL,
+	`creator_id` text,
+	`role` text DEFAULT 'editor' NOT NULL,
 	`token` text,
 	`is_active` integer DEFAULT 1 NOT NULL,
 	`created_at` text NOT NULL,
 	`expires_at` text NOT NULL,
-	FOREIGN KEY (`note_id`) REFERENCES `notes`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`note_id`) REFERENCES `notes`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`creator_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `collab_sessions_token_unique` ON `collab_sessions` (`token`);--> statement-breakpoint
@@ -71,6 +74,7 @@ CREATE TABLE `notes` (
 	`category` text DEFAULT 'note' NOT NULL,
 	`status` text DEFAULT 'draft' NOT NULL,
 	`word_count` integer DEFAULT 0 NOT NULL,
+	`view_count` integer DEFAULT 0 NOT NULL,
 	`created_at` text NOT NULL,
 	`updated_at` text NOT NULL,
 	`published_at` text,
@@ -82,6 +86,23 @@ CREATE INDEX `idx_notes_status` ON `notes` (`status`);--> statement-breakpoint
 CREATE INDEX `idx_notes_category` ON `notes` (`category`);--> statement-breakpoint
 CREATE INDEX `idx_notes_author_id` ON `notes` (`author_id`);--> statement-breakpoint
 CREATE INDEX `idx_notes_updated_at` ON `notes` (`updated_at`);--> statement-breakpoint
+CREATE TABLE `passkey` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text,
+	`public_key` text NOT NULL,
+	`user_id` text NOT NULL,
+	`credential_id` text NOT NULL,
+	`counter` integer NOT NULL,
+	`device_type` text NOT NULL,
+	`backed_up` integer NOT NULL,
+	`transports` text,
+	`created_at` text,
+	`aaguid` text,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_passkey_user_id` ON `passkey` (`user_id`);--> statement-breakpoint
+CREATE INDEX `idx_passkey_credential_id` ON `passkey` (`credential_id`);--> statement-breakpoint
 CREATE TABLE `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`expires_at` text NOT NULL,
@@ -90,6 +111,7 @@ CREATE TABLE `session` (
 	`updated_at` text NOT NULL,
 	`ip_address` text,
 	`user_agent` text,
+	`impersonated_by` text,
 	`user_id` text NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -103,6 +125,16 @@ CREATE TABLE `tags` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `tags_name_unique` ON `tags` (`name`);--> statement-breakpoint
 CREATE UNIQUE INDEX `tags_slug_unique` ON `tags` (`slug`);--> statement-breakpoint
+CREATE TABLE `two_factor` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`secret` text,
+	`backup_codes` text,
+	`verified_at` text,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_two_factor_user_id` ON `two_factor` (`user_id`);--> statement-breakpoint
 CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,
@@ -111,6 +143,9 @@ CREATE TABLE `user` (
 	`image` text,
 	`created_at` text NOT NULL,
 	`updated_at` text NOT NULL,
+	`banned` integer DEFAULT false,
+	`ban_reason` text,
+	`ban_expires` text,
 	`role` text DEFAULT 'commenter' NOT NULL,
 	`approval_status` text DEFAULT 'pending' NOT NULL
 );
