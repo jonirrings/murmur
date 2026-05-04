@@ -12,6 +12,7 @@ import { eq } from "drizzle-orm";
 import { detectLocale, t } from "@/shared/i18n/server";
 import { NOTE_CATEGORIES } from "@/shared/constants";
 import type { NoteCategory } from "@/shared/types";
+import type { HotPeriod } from "@/db/repositories/view.repo";
 import {
   NoteListPage,
   TagPage,
@@ -19,9 +20,67 @@ import {
   NoteDetailPage,
   PreviewPage,
   ErrorPage,
+  HotNotesPage,
 } from "@/components/ssr/note-detail";
 
 const app = new Hono<Env>();
+
+const HOT_PERIODS: Array<{ value: HotPeriod; labelZh: string; labelEn: string }> = [
+  { value: "1h", labelZh: "1 小时", labelEn: "1 Hour" },
+  { value: "1d", labelZh: "1 天", labelEn: "1 Day" },
+  { value: "1w", labelZh: "1 周", labelEn: "1 Week" },
+  { value: "1mo", labelZh: "1 月", labelEn: "1 Month" },
+];
+
+/** GET /hot — Hot/trending notes page */
+app.get("/hot", async (c) => {
+  const kv = c.env.KV;
+  const locale = detectLocale(c.req.header("Accept-Language"));
+  const period = (c.req.query("period") || "1d") as HotPeriod;
+  const validPeriod: HotPeriod = ["1h", "1d", "1w", "1mo"].includes(period) ? period : "1d";
+  const cacheKey = `/hot/${validPeriod}/${locale}`;
+
+  if (kv) {
+    const cache = new SsrCache(kv);
+    const cached = await cache.get(cacheKey);
+    if (cached) return c.html(cached);
+  }
+
+  const db = createDb(c.env.DB);
+  const service = new NoteService(db);
+  const { items } = await service.listHot(validPeriod, 20);
+
+  const periodTabs = HOT_PERIODS.map((p) => ({
+    value: p.value,
+    label: locale === "zh-CN" ? p.labelZh : p.labelEn,
+    active: p.value === validPeriod,
+  }));
+
+  const html = (
+    <HotNotesPage
+      notes={items.map((n) => ({
+        id: n.id,
+        title: n.title,
+        excerpt: n.excerpt ?? "",
+        slug: n.slug,
+        publishedAt: n.publishedAt,
+        createdAt: n.createdAt,
+        periodViews: n.periodViews,
+      }))}
+      periodTabs={periodTabs}
+      acceptLanguage={c.req.header("Accept-Language")}
+      pageKey="/hot"
+    />
+  );
+
+  if (kv) {
+    const cache = new SsrCache(kv);
+    // eslint-disable-next-line typescript-eslint/no-base-to-string -- Hono JSX elements implement toString()
+    await cache.set(cacheKey, String(html));
+  }
+
+  return c.html(html);
+});
 
 /** GET / — Home page: list published notes */
 app.get("/", async (c) => {

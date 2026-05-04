@@ -18,5 +18,7 @@
   "category.tip": "技巧",
   "category.knowledge": "知识",
   "allNotes": "全部",
-  "categoryNotFound": "分类不存在"
+  "categoryNotFound": "分类不存在",
+  "hotNotes": "热门笔记",
+  "noHotNotes": "暂无热门笔记"
 }

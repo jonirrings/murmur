@@ -18,5 +18,7 @@
   "category.tip": "Tip",
   "category.knowledge": "Knowledge",
   "allNotes": "All",
-  "categoryNotFound": "Category not found"
+  "categoryNotFound": "Category not found",
+  "hotNotes": "Hot Notes",
+  "noHotNotes": "No hot notes yet"
 }

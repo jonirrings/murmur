@@ -56,6 +56,8 @@ Then edit `.dev.vars` — for local development the defaults work out of the box
 | `TURNSTILE_SECRET_KEY` | No       | _(empty)_               | Cloudflare Turnstile backend key                       |
 | `RESEND_API_KEY`       | No       | _(empty)_               | Resend API key for magic link emails                   |
 | `RESEND_FROM_EMAIL`    | No       | _(empty)_               | Verified sender email (e.g. `noreply@your-domain.com`) |
+| `GITHUB_CLIENT_ID`     | No       | _(empty)_               | GitHub OAuth App Client ID                             |
+| `GITHUB_CLIENT_SECRET` | No       | _(empty)_               | GitHub OAuth App Client Secret                         |
 
 ### 3. Configure Resend (optional, for Magic Link emails)
 
@@ -224,15 +226,16 @@ src/
 
 ### Notes
 
-| Method | Path                       | Auth   | Description     |
-| ------ | -------------------------- | ------ | --------------- |
-| GET    | `/api/notes`               | Author | List own notes  |
-| POST   | `/api/notes`               | Author | Create note     |
-| GET    | `/api/notes/:id`           | Author | Get note detail |
-| PUT    | `/api/notes/:id`           | Author | Update note     |
-| DELETE | `/api/notes/:id`           | Author | Delete note     |
-| POST   | `/api/notes/:id/publish`   | Author | Publish note    |
-| POST   | `/api/notes/:id/unpublish` | Author | Unpublish note  |
+| Method | Path                       | Auth   | Description        |
+| ------ | -------------------------- | ------ | ------------------ |
+| GET    | `/api/notes`               | Author | List own notes     |
+| POST   | `/api/notes`               | Author | Create note        |
+| GET    | `/api/notes/:id`           | Author | Get note detail    |
+| PUT    | `/api/notes/:id`           | Author | Update note        |
+| DELETE | `/api/notes/:id`           | Author | Delete note        |
+| POST   | `/api/notes/:id/publish`   | Author | Publish note       |
+| POST   | `/api/notes/:id/unpublish` | Author | Unpublish note     |
+| GET    | `/api/notes/hot`           | None   | Hot/trending notes |
 
 ### Comments
 
@@ -313,7 +316,11 @@ Yjs-powered collaborative editing via Durable Objects with WebSocket and WebRTC 
 
 ### SSR + KV Cache
 
-Public pages are server-side rendered using hono/jsx components with KV caching (5min for home, 10min for note detail). Cache keys include locale suffix for i18n support. Cache is automatically invalidated on note publish/update.
+Public pages are server-side rendered using hono/jsx components with KV caching (5min for home/tag/category/hot, 10min for note detail). Cache keys include locale suffix for i18n support. Cache is automatically invalidated on note publish/update.
+
+### Hot Notes
+
+Time-windowed trending notes based on view counts from the `note_views` table. Supports 1 hour, 1 day, 1 week, and 1 month periods. Public API at `GET /api/notes/hot?period=1d&limit=20` and SSR page at `/hot`. View events are deduplicated by IP per day. A cron job cleans up records older than 90 days.
 
 ### Full-text Search
 
@@ -419,6 +426,8 @@ Visit `https://your-domain.com/setup` to create the first admin account. This ro
 | `TURNSTILE_SITE_KEY`   | var     | Dashboard or `[vars]` | Turnstile client-side key (non-secret) |
 | `RESEND_API_KEY`       | secret  | `wrangler secret put` | Resend API key for email delivery      |
 | `RESEND_FROM_EMAIL`    | secret  | `wrangler secret put` | Verified sender email address          |
+| `GITHUB_CLIENT_ID`     | secret  | `wrangler secret put` | GitHub OAuth App Client ID             |
+| `GITHUB_CLIENT_SECRET` | secret  | `wrangler secret put` | GitHub OAuth App Client Secret         |
 | `DB`                   | binding | `wrangler.toml`       | D1 database binding                    |
 | `KV`                   | binding | `wrangler.toml`       | KV namespace binding                   |
 | `R2`                   | binding | `wrangler.toml`       | R2 bucket binding                      |

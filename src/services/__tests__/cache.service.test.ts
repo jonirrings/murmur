@@ -81,13 +81,23 @@ describe("SsrCache", () => {
   });
 
   describe("invalidateNote", () => {
-    it("invalidates note and home page for all locales", async () => {
+    it("invalidates note, home, and hot pages for all locales", async () => {
       await cache.invalidateNote("my-post");
-      expect(kv.delete).toHaveBeenCalledTimes(4);
+      // 2 locales × (1 note + 1 home + 4 hot periods) = 12
+      expect(kv.delete).toHaveBeenCalledTimes(12);
       expect(kv.delete).toHaveBeenCalledWith("ssr:/note/my-post/zh-CN");
       expect(kv.delete).toHaveBeenCalledWith("ssr:/zh-CN");
       expect(kv.delete).toHaveBeenCalledWith("ssr:/note/my-post/en");
       expect(kv.delete).toHaveBeenCalledWith("ssr:/en");
+      // Hot pages
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1h/zh-CN");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1d/zh-CN");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1w/zh-CN");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1mo/zh-CN");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1h/en");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1d/en");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1w/en");
+      expect(kv.delete).toHaveBeenCalledWith("ssr:/hot/1mo/en");
     });
   });
 

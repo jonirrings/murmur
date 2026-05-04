@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 import {
   createNoteSchema,
   updateNoteSchema,
@@ -15,6 +16,12 @@ import {
   SlugConflictError,
 } from "@/services/note.service";
 import { SsrCache } from "@/services/cache.service";
+import type { HotPeriod } from "@/db/repositories/view.repo";
+
+const hotNotesQuerySchema = z.object({
+  period: z.enum(["1h", "1d", "1w", "1mo"]).default("1d"),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
 
 const app = new Hono<Env>();
 
@@ -32,6 +39,15 @@ async function invalidateNoteCache(
     await cache.invalidate("/");
   }
 }
+
+/** GET /api/notes/hot — List hot/trending notes by time period */
+app.get("/hot", zValidator("query", hotNotesQuerySchema), async (c) => {
+  const { period, limit } = c.req.valid("query");
+  const db = c.get("db");
+  const service = new NoteService(db);
+  const result = await service.listHot(period as HotPeriod, limit);
+  return c.json({ data: result });
+});
 
 /** GET /api/notes — List published notes (public) */
 app.get("/", zValidator("query", listNotesQuerySchema), async (c) => {

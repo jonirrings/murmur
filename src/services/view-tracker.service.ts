@@ -1,5 +1,6 @@
 import type { Database } from "@/db/client";
 import { notes } from "@/db/schema";
+import { ViewRepo } from "@/db/repositories/view.repo";
 import { eq, sql } from "drizzle-orm";
 
 /**
@@ -35,9 +36,11 @@ const BOT_SCORE_THRESHOLD = 30;
 
 export class ViewTrackerService {
   private db: Database;
+  private viewRepo: ViewRepo;
 
   constructor(db: Database) {
     this.db = db;
+    this.viewRepo = new ViewRepo(db);
   }
 
   /**
@@ -73,17 +76,26 @@ export class ViewTrackerService {
 
   /**
    * Increment view count for a note (only if not a bot).
-   * Uses a conditional increment to avoid counting bots.
+   * Also records a view event in note_views for hot notes ranking.
    */
   async incrementViewCount(noteId: string, request: Request): Promise<boolean> {
     if (this.isBot(request)) return false;
 
     try {
+      // Increment the denormalized view_count on notes table
       await this.db
         .update(notes)
         .set({ viewCount: sql`${notes.viewCount} + 1` })
         .where(eq(notes.id, noteId))
         .execute();
+
+      // Record view event for hot notes (deduped by IP+date)
+      const ip =
+        request.headers.get("cf-connecting-ip") ||
+        request.headers.get("x-forwarded-for") ||
+        "unknown";
+      await this.viewRepo.recordView(noteId, ip);
+
       return true;
     } catch {
       return false;

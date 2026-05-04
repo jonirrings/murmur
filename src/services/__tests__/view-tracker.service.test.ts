@@ -12,6 +12,17 @@ function createMockDb() {
     where: vi.fn().mockReturnThis(),
     execute: vi.fn(),
     run: vi.fn(),
+    // For ViewRepo.recordView
+    select: vi.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    innerJoin: vi.fn().mockReturnThis(),
+    groupBy: vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue(null),
+    insert: vi.fn().mockReturnThis(),
+    values: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
   };
 }
 

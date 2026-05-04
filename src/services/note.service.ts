@@ -1,5 +1,6 @@
 import type { Database } from "@/db/client";
 import { NoteRepo } from "@/db/repositories/note.repo";
+import { ViewRepo, type HotPeriod } from "@/db/repositories/view.repo";
 import { TagRepo } from "@/db/repositories/tag.repo";
 import type { CreateNoteInput, UpdateNoteInput } from "@/shared/schemas/note";
 import type { NoteCategory } from "@/shared/types";
@@ -25,10 +26,12 @@ function countWords(content: string): number {
 export class NoteService {
   private noteRepo: NoteRepo;
   private tagRepo: TagRepo;
+  private viewRepo: ViewRepo;
 
   constructor(db: Database) {
     this.noteRepo = new NoteRepo(db);
     this.tagRepo = new TagRepo(db);
+    this.viewRepo = new ViewRepo(db);
   }
 
   async create(authorId: string, input: CreateNoteInput) {
@@ -159,6 +162,15 @@ export class NoteService {
       this.noteRepo.countPublished(category),
     ]);
     return { items, total, page, limit };
+  }
+
+  /**
+   * List hot/trending notes by view count within a time period.
+   * Uses the note_views table for time-windowed aggregation.
+   */
+  async listHot(period: HotPeriod, limit: number) {
+    const items = await this.viewRepo.findHotNotes(period, limit);
+    return { items, period, limit };
   }
 }
 

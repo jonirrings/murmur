@@ -176,6 +176,23 @@ export const collabSessions = sqliteTable("collab_sessions", {
   expiresAt: text("expires_at").notNull(),
 });
 
+// ─── 笔记浏览记录（热门笔记） ───
+export const noteViews = sqliteTable(
+  "note_views",
+  {
+    id: text("id").primaryKey(),
+    noteId: text("note_id")
+      .notNull()
+      .references(() => notes.id, { onDelete: "cascade" }),
+    ip: text("ip"),
+    viewedAt: text("viewed_at").notNull(),
+  },
+  (table) => [
+    index("idx_note_views_note_viewed").on(table.noteId, table.viewedAt),
+    index("idx_note_views_viewed_at").on(table.viewedAt),
+  ],
+);
+
 // ─── better-auth passkey plugin ───
 export const passkey = sqliteTable(
   "passkey",

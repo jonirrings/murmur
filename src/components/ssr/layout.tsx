@@ -34,6 +34,15 @@ const globalStyles = `
   .comment-content { margin: 0; font-size: 0.9375rem; color: #374151; white-space: pre-wrap; }
   .no-comments { color: #9ca3af; font-style: italic; }
   .preview-badge { display: inline-block; padding: 0.25rem 0.75rem; margin-bottom: 1rem; background: #fef3c7; color: #92400e; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .hot-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .hot-tab { padding: 0.375rem 0.875rem; border-radius: 9999px; font-size: 0.875rem; background: #f3f4f6; color: #4b5563; transition: background 0.15s, color 0.15s; }
+  .hot-tab:hover { background: #e5e7eb; text-decoration: none; }
+  .hot-tab.active { background: #2563eb; color: #fff; }
+  .hot-views { font-size: 0.75rem; color: #f59e0b; margin-left: 0.5rem; }
+  .hot-note-card { display: block; padding: 1rem 0; border-bottom: 1px solid #e5e7eb; text-decoration: none; color: inherit; }
+  .hot-note-card:hover { text-decoration: none; }
+  .hot-note-card h2 { font-size: 1.125rem; font-weight: 600; margin: 0 0 0.25rem; color: #1a1a1a; }
+  .hot-note-card .meta { display: flex; align-items: center; gap: 0.25rem; }
 `;
 
 export const HtmlDocument: FC<PropsWithChildren<HtmlDocumentProps>> = ({
@@ -71,6 +80,12 @@ export const HtmlDocument: FC<PropsWithChildren<HtmlDocumentProps>> = ({
             </span>
           </div>
         )}
+        <nav style="margin-bottom:1rem;font-size:0.875rem;">
+          <a href="/" style="margin-right:1rem;">
+            Murmur
+          </a>
+          <a href="/hot">🔥 Hot</a>
+        </nav>
         {children}
         {pageKey && visitorCounterScript({ pageKey, showReaderCount })}
       </body>

@@ -37,7 +37,7 @@ pnpm db:studio            # Open Drizzle Studio
 - **DB**: `src/db/client.ts` — `createDb(d1)` factory, injects per-request. Schema in `src/db/schema.ts` (Drizzle + SQLite). Repos in `src/db/repositories/`
 - **Services**: `src/services/` — business logic layer (note, comment, tag, setup, search, cache, render, email, view-tracker)
 - **Routes**: `src/routes/api/` — Hono sub-routers mounted in `app.ts`. Pattern: `app.route("/api/me", meRoutes)`
-- **SSR**: `src/routes/ssr.tsx` + `src/components/ssr/` — hono/jsx server-rendered public pages with KV cache
+- **SSR**: `src/routes/ssr.tsx` + `src/components/ssr/` — hono/jsx server-rendered public pages with KV cache. Routes: `/` (home), `/note/:slug`, `/tag/:tag`, `/category/:category`, `/hot` (trending notes), `/preview/:token`
 
 ### Client (React SPA)
 

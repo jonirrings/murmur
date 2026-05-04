@@ -93,5 +93,14 @@
     "approvalPendingDesc": "Your account is awaiting admin approval."
   },
   "anonymous": "Anonymous",
-  "noTitle": "Untitled"
+  "noTitle": "Untitled",
+  "hotNotes": {
+    "title": "Hot Notes",
+    "1h": "1 Hour",
+    "1d": "1 Day",
+    "1w": "1 Week",
+    "1mo": "1 Month",
+    "views": " views",
+    "noHotNotes": "No hot notes yet"
+  }
 }

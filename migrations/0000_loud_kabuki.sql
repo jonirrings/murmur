@@ -64,6 +64,16 @@ CREATE TABLE `note_tags` (
 );
 --> statement-breakpoint
 CREATE INDEX `idx_note_tags_tag_id` ON `note_tags` (`tag_id`);--> statement-breakpoint
+CREATE TABLE `note_views` (
+	`id` text PRIMARY KEY NOT NULL,
+	`note_id` text NOT NULL,
+	`ip` text,
+	`viewed_at` text NOT NULL,
+	FOREIGN KEY (`note_id`) REFERENCES `notes`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_note_views_note_viewed` ON `note_views` (`note_id`,`viewed_at`);--> statement-breakpoint
+CREATE INDEX `idx_note_views_viewed_at` ON `note_views` (`viewed_at`);--> statement-breakpoint
 CREATE TABLE `notes` (
 	`id` text PRIMARY KEY NOT NULL,
 	`author_id` text NOT NULL,

@@ -342,3 +342,66 @@ export const ErrorPage: FC<ErrorPageProps> = ({ title, message, description, acc
     </HtmlDocument>
   );
 };
+
+interface HotNotesPageProps {
+  notes: Array<{
+    id: string;
+    title: string;
+    excerpt: string;
+    slug: string | null;
+    publishedAt: string | null;
+    createdAt: string;
+    periodViews: number;
+  }>;
+  periodTabs: Array<{ value: string; label: string; active: boolean }>;
+  acceptLanguage?: string | null;
+  pageKey?: string;
+}
+
+export const HotNotesPage: FC<HotNotesPageProps> = ({
+  notes,
+  periodTabs,
+  acceptLanguage,
+  pageKey,
+}) => {
+  const locale = detectLocale(acceptLanguage);
+  const pageTitle = locale === "zh-CN" ? "热门笔记" : "Hot Notes";
+  const viewsLabel = locale === "zh-CN" ? "次浏览" : " views";
+  const noHotNotes = locale === "zh-CN" ? "暂无热门笔记" : "No hot notes yet";
+
+  const tabsHtml = periodTabs.map((tab) => (
+    <a href={`/hot?period=${tab.value}`} class={`hot-tab${tab.active ? " active" : ""}`}>
+      {tab.label}
+    </a>
+  ));
+
+  return (
+    <HtmlDocument title={pageTitle} locale={locale} pageKey={pageKey}>
+      <div class="container">
+        <h1>{pageTitle}</h1>
+        <nav class="hot-tabs">{tabsHtml}</nav>
+        <div class="notes-list">
+          {notes.length > 0 ? (
+            notes.map((note) => (
+              <a href={`/note/${note.slug ?? note.id}`} class="note-card hot-note-card">
+                <h2>{note.title || (locale === "zh-CN" ? "无标题" : "Untitled")}</h2>
+                {note.excerpt && <p class="excerpt">{note.excerpt}</p>}
+                <div class="meta">
+                  <time datetime={note.publishedAt ?? note.createdAt}>
+                    {formatDate(note.publishedAt ?? note.createdAt, locale)}
+                  </time>
+                  <span class="hot-views">
+                    {note.periodViews}
+                    {viewsLabel}
+                  </span>
+                </div>
+              </a>
+            ))
+          ) : (
+            <p>{noHotNotes}</p>
+          )}
+        </div>
+      </div>
+    </HtmlDocument>
+  );
+};

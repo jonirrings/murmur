@@ -42,11 +42,13 @@ export class SsrCache {
 
   async invalidateNote(slug: string, category?: string): Promise<void> {
     const locales = ["zh-CN", "en"];
+    const hotPeriods = ["1h", "1d", "1w", "1mo"];
     await Promise.all(
       locales.flatMap((locale) => [
         this.invalidate(`/note/${slug}/${locale}`),
         this.invalidate(`/${locale}`),
         ...(category ? [this.invalidate(`/category/${category}/${locale}`)] : []),
+        ...hotPeriods.map((period) => this.invalidate(`/hot/${period}/${locale}`)),
       ]),
     );
   }

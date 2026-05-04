@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "eb19ec6f-0e3e-44f3-a586-9d81b63a3de6",
+  "id": "fdd6f553-8c66-4eca-8214-6aa1e3d6c9dc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -420,6 +420,65 @@
           "tableFrom": "note_tags",
           "tableTo": "tags",
           "columnsFrom": ["tag_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "note_views": {
+      "name": "note_views",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "note_id": {
+          "name": "note_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "viewed_at": {
+          "name": "viewed_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_note_views_note_viewed": {
+          "name": "idx_note_views_note_viewed",
+          "columns": ["note_id", "viewed_at"],
+          "isUnique": false
+        },
+        "idx_note_views_viewed_at": {
+          "name": "idx_note_views_viewed_at",
+          "columns": ["viewed_at"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "note_views_note_id_notes_id_fk": {
+          "name": "note_views_note_id_notes_id_fk",
+          "tableFrom": "note_views",
+          "tableTo": "notes",
+          "columnsFrom": ["note_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
