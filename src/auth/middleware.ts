@@ -6,11 +6,13 @@ import { createDb } from "@/db/client";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ROLE_HIERARCHY } from "@/shared/constants";
+import { t } from "@/shared/i18n/server";
 
 type Env = {
   Bindings: AuthEnv;
   Variables: {
     db: Database;
+    language: string;
     user: {
       id: string;
       email: string;
@@ -34,7 +36,10 @@ export const injectDb = createMiddleware<Env>(async (c, next) => {
 export const requireAuth = createMiddleware<Env>(async (c, next) => {
   const session = await getSession(c);
   if (!session) {
-    return c.json({ error: { code: "UNAUTHORIZED", message: "请先登录" } }, 401);
+    return c.json(
+      { error: { code: "UNAUTHORIZED", message: t("error.unauthorized", c.get("language")) } },
+      401,
+    );
   }
   c.set("user", session);
   await next();
@@ -44,10 +49,16 @@ export const requireAuth = createMiddleware<Env>(async (c, next) => {
 export const requireAdmin = createMiddleware<Env>(async (c, next) => {
   const session = await getSession(c);
   if (!session) {
-    return c.json({ error: { code: "UNAUTHORIZED", message: "请先登录" } }, 401);
+    return c.json(
+      { error: { code: "UNAUTHORIZED", message: t("error.unauthorized", c.get("language")) } },
+      401,
+    );
   }
   if (session.role !== "admin") {
-    return c.json({ error: { code: "FORBIDDEN", message: "需要管理员权限" } }, 403);
+    return c.json(
+      { error: { code: "FORBIDDEN", message: t("error.requireAdmin", c.get("language")) } },
+      403,
+    );
   }
   c.set("user", session);
   await next();
@@ -57,10 +68,16 @@ export const requireAdmin = createMiddleware<Env>(async (c, next) => {
 export const requireAuthor = createMiddleware<Env>(async (c, next) => {
   const session = await getSession(c);
   if (!session) {
-    return c.json({ error: { code: "UNAUTHORIZED", message: "请先登录" } }, 401);
+    return c.json(
+      { error: { code: "UNAUTHORIZED", message: t("error.unauthorized", c.get("language")) } },
+      401,
+    );
   }
   if (!hasRole(session.role, "author")) {
-    return c.json({ error: { code: "FORBIDDEN", message: "需要作者权限" } }, 403);
+    return c.json(
+      { error: { code: "FORBIDDEN", message: t("error.requireAuthor", c.get("language")) } },
+      403,
+    );
   }
   c.set("user", session);
   await next();
@@ -70,10 +87,16 @@ export const requireAuthor = createMiddleware<Env>(async (c, next) => {
 export const requireApproved = createMiddleware<Env>(async (c, next) => {
   const session = await getSession(c);
   if (!session) {
-    return c.json({ error: { code: "UNAUTHORIZED", message: "请先登录" } }, 401);
+    return c.json(
+      { error: { code: "UNAUTHORIZED", message: t("error.unauthorized", c.get("language")) } },
+      401,
+    );
   }
   if (session.approvalStatus !== "approved") {
-    return c.json({ error: { code: "FORBIDDEN", message: "账号尚未通过审批" } }, 403);
+    return c.json(
+      { error: { code: "FORBIDDEN", message: t("error.notApproved", c.get("language")) } },
+      403,
+    );
   }
   c.set("user", session);
   await next();

@@ -1,11 +1,10 @@
 import { defineConfig } from "vite-plus";
-import devServer from "@hono/vite-dev-server";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { copyFileSync } from "node:fs";
+import { copyFileSync, existsSync } from "node:fs";
 
 const __dirname = resolve(fileURLToPath(import.meta.url), "..");
 
@@ -21,9 +20,6 @@ export default defineConfig({
       autoCodeSplitting: true,
       routesDirectory: resolve(__dirname, "src/client/routes"),
       generatedRouteTree: resolve(__dirname, "src/client/routeTree.gen.ts"),
-    }),
-    devServer({
-      entry: resolve(__dirname, "src/index.ts"),
     }),
     react(),
     tailwindcss(),
@@ -44,8 +40,18 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  root: resolve(__dirname, "src/client"),
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8787",
+        changeOrigin: true,
+      },
+    },
+  },
+  appType: "spa",
   build: {
-    outDir: "dist/client",
+    outDir: resolve(__dirname, "dist/client"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 1600,
     rolldownOptions: {

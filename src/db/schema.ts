@@ -16,6 +16,8 @@ export const user = sqliteTable("user", {
   banned: integer("banned", { mode: "boolean" }).default(false),
   banReason: text("ban_reason"),
   banExpires: text("ban_expires"),
+  // better-auth twoFactor plugin
+  twoFactorEnabled: integer("two_factor_enabled", { mode: "boolean" }).notNull().default(false),
   // Murmur extensions
   role: text("role", {
     enum: ["admin", "author", "commenter"],

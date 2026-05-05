@@ -156,6 +156,7 @@ CREATE TABLE `user` (
 	`banned` integer DEFAULT false,
 	`ban_reason` text,
 	`ban_expires` text,
+	`two_factor_enabled` integer DEFAULT false NOT NULL,
 	`role` text DEFAULT 'commenter' NOT NULL,
 	`approval_status` text DEFAULT 'pending' NOT NULL
 );

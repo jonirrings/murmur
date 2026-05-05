@@ -1,8 +1,10 @@
 import { Hono } from "hono";
+import { languageDetector } from "hono/language";
 import type { Env } from "./auth/middleware";
 import { injectDb } from "./auth/middleware";
 import { createAuth } from "./auth/better-auth.config";
 import { createDb } from "./db/client";
+import { t } from "./shared/i18n/server";
 import setupRoutes from "./routes/api/setup";
 import adminRoutes from "./routes/api/admin";
 import notesRoutes from "./routes/api/notes";
@@ -23,14 +25,29 @@ const app = new Hono<Env>();
 // Global error handler
 app.onError((err, c) => {
   console.error("Unhandled error:", err);
-  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
+  return c.json(
+    { error: { code: "INTERNAL_ERROR", message: t("error.internalError", c.get("language")) } },
+    500,
+  );
 });
 
 // Inject DB into all routes
 app.use("*", injectDb);
 
+// Language detection for all routes
+app.use(
+  "*",
+  languageDetector({
+    supportedLanguages: ["zh-CN", "en", "ja"],
+    fallbackLanguage: "en",
+    order: ["header"],
+    caches: [],
+  }),
+);
+
 // Mount better-auth handler at /api/auth
-app.on(["GET", "POST"], "/api/auth/**", async (c) => {
+// Note: Hono v4 requires app.use() for wildcard sub-path matching, not app.on() or app.all()
+app.use("/api/auth/*", async (c) => {
   // Rate limit magic-link login attempts by IP
   if (c.req.method === "POST" && c.req.path.endsWith("/magic-link/send") && c.env.RATE_LIMITER_DO) {
     const ip = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for") ?? "unknown";
@@ -46,7 +63,9 @@ app.on(["GET", "POST"], "/api/auth/**", async (c) => {
     const result = await check.json<{ allowed: boolean }>();
     if (!result.allowed) {
       return c.json(
-        { error: { code: "RATE_LIMITED", message: "登录尝试过于频繁，请稍后再试" } },
+        {
+          error: { code: "RATE_LIMITED", message: t("error.loginRateLimited", c.get("language")) },
+        },
         429,
       );
     }

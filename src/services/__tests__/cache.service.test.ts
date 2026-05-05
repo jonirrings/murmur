@@ -83,8 +83,8 @@ describe("SsrCache", () => {
   describe("invalidateNote", () => {
     it("invalidates note, home, and hot pages for all locales", async () => {
       await cache.invalidateNote("my-post");
-      // 2 locales × (1 note + 1 home + 4 hot periods) = 12
-      expect(kv.delete).toHaveBeenCalledTimes(12);
+      // 3 locales × (1 note + 1 home + 4 hot periods) = 18
+      expect(kv.delete).toHaveBeenCalledTimes(18);
       expect(kv.delete).toHaveBeenCalledWith("ssr:/note/my-post/zh-CN");
       expect(kv.delete).toHaveBeenCalledWith("ssr:/zh-CN");
       expect(kv.delete).toHaveBeenCalledWith("ssr:/note/my-post/en");

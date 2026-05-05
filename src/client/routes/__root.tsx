@@ -2,6 +2,7 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/client/components/theme-provider";
 import { LocaleSync } from "@/client/app";
+import { CookieConsent } from "@/client/components/cookie-consent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ function RootLayout() {
       <ThemeProvider>
         <LocaleSync />
         <Outlet />
+        <CookieConsent />
       </ThemeProvider>
     </QueryClientProvider>
   );

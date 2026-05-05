@@ -4,23 +4,23 @@ A note-taking system built on Cloudflare Workers, featuring Markdown editing wit
 
 ## Tech Stack
 
-| Layer         | Technology                                                      |
-| ------------- | --------------------------------------------------------------- |
-| Runtime       | Cloudflare Workers                                              |
-| Framework     | Hono v4                                                         |
-| Database      | D1 (SQLite)                                                     |
-| Cache         | KV                                                              |
-| Storage       | R2                                                              |
-| Realtime      | Durable Objects (Collaboration, Rate Limiting, Visitor Counter) |
-| ORM           | Drizzle ORM                                                     |
-| Auth          | better-auth (magic link + passkey + 2FA + admin plugin)         |
-| Frontend      | React 19 + Vite 8 + Tailwind CSS v4                             |
-| Routing       | TanStack Router (file-based)                                    |
-| Editor        | CodeMirror 6                                                    |
-| Collaboration | Yjs + y-websocket + y-webrtc                                    |
-| Icons         | lucide-react                                                    |
-| State         | TanStack Query 5 + Zustand 5                                    |
-| Testing       | Vitest                                                          |
+| Layer         | Technology                                                           |
+| ------------- | -------------------------------------------------------------------- |
+| Runtime       | Cloudflare Workers                                                   |
+| Framework     | Hono v4                                                              |
+| Database      | D1 (SQLite)                                                          |
+| Cache         | KV                                                                   |
+| Storage       | R2                                                                   |
+| Realtime      | Durable Objects (Collaboration, Rate Limiting, Visitor Counter)      |
+| ORM           | Drizzle ORM                                                          |
+| Auth          | better-auth (magic link + passkey + 2FA + admin plugin)              |
+| Frontend      | React 19 + Vite 8 + Tailwind CSS v4                                  |
+| Routing       | TanStack Router (file-based)                                         |
+| Editor        | CodeMirror 6                                                         |
+| Collaboration | Yjs + y-websocket + y-webrtc                                         |
+| Icons         | lucide-react                                                         |
+| State         | TanStack Query 5 + Zustand 5 (theme, locale, sidebar, cookieConsent) |
+| Testing       | Vitest                                                               |
 
 ## Prerequisites
 
@@ -115,11 +115,13 @@ src/
 │   └── view-tracker.service.ts # View count with bot filtering & CF Analytics calibration
 ├── components/
 │   └── ssr/                 # hono/jsx SSR components
-│       ├── layout.tsx        # HtmlDocument shell
+│       ├── layout.tsx        # HtmlDocument shell + nav + footer + cookie banner
 │       ├── note-card.tsx     # Note card for list pages
 │       ├── note-detail.tsx   # Note detail + list/tag/preview/error pages
 │       ├── comment-item.tsx  # Comment item
 │       ├── pagination.tsx    # Pagination navigation
+│       ├── privacy-page.tsx  # Privacy policy SSR page
+│       ├── about-page.tsx    # About SSR page
 │       └── visitor-counter-script.tsx # WebSocket visitor counter script
 ├── routes/
 │   ├── ssr.tsx              # Server-side rendered public pages (hono/jsx)
@@ -141,10 +143,12 @@ src/
 │   ├── app.tsx              # LocaleSync component
 │   ├── routeTree.gen.ts     # Auto-generated route tree
 │   ├── routes/              # TanStack Router file-based routes
-│   │   ├── __root.tsx       # Root layout (QueryClientProvider + ThemeProvider + LocaleSync)
+│   │   ├── __root.tsx       # Root layout (QueryClientProvider + ThemeProvider + LocaleSync + CookieConsent)
 │   │   ├── setup.tsx
 │   │   ├── login.tsx
-│   │   ├── admin.tsx        # Admin layout (sidebar + auth guard)
+│   │   ├── privacy.tsx      # Privacy policy (SPA)
+│   │   ├── about.tsx        # About page (SPA)
+│   │   ├── admin.tsx        # Admin layout (sidebar + auth guard + locale dropdown)
 │   │   ├── admin/dashboard.tsx
 │   │   ├── admin/notes.tsx
 │   │   ├── admin/notes/new.tsx
@@ -157,15 +161,17 @@ src/
 │   │   ├── index.ts         # i18next.init()
 │   │   └── locales/         # Per-language namespace JSON files
 │   │       ├── zh-CN/       # common, admin, auth, editor, comments
-│   │       └── en/          # common, admin, auth, editor, comments
+│   │       ├── en/          # common, admin, auth, editor, comments
+│   │       └── ja/          # common, admin, auth, editor, comments
 │   ├── pages/               # Page components (referenced by routes/)
 │   ├── hooks/               # Custom hooks (useAutoSave, useCollabEditor)
 │   ├── components/
 │   │   ├── editor/          # MarkdownEditor, Toolbar, ImageUploader, CollabPresence
+│   │   ├── cookie-consent.tsx # Cookie consent banner (SPA)
 │   │   ├── theme-toggle.tsx
 │   │   └── theme-provider.tsx
 │   ├── stores/
-│   │   └── ui-store.ts      # Zustand — theme, sidebar, locale
+│   │   └── ui-store.ts      # Zustand — theme, sidebar, locale, cookieConsent
 │   ├── queries/             # TanStack Query hooks
 │   │   ├── admin.ts
 │   │   ├── comments.ts
@@ -185,7 +191,7 @@ src/
     ├── constants.ts         # Role hierarchy, categories, pagination
     ├── i18n/                # Server-side i18n
     │   ├── server.ts        # detectLocale() + t()
-    │   └── locales/         # zh-CN.json, en.json (SSR-only)
+    │   └── locales/         # zh-CN.json, en.json, ja.json (SSR-only)
     └── schemas/             # Zod validation schemas
 ```
 
@@ -344,7 +350,11 @@ WebAuthn passkey authentication via `@better-auth/passkey` for passwordless logi
 
 ### Internationalization (i18n)
 
-Bilingual support (Chinese/English) powered by i18next. Client-side uses react-i18next with 5 namespaces (common, admin, auth, editor, comments). Server-side SSR uses `detectLocale()` from `Accept-Language` header with locale-suffixed KV cache keys. Language preference persisted in Zustand store.
+Trilingual support (Chinese/English/Japanese) powered by i18next. Client-side uses react-i18next with 5 namespaces (common, admin, auth, editor, comments). Server-side SSR uses `detectLocale()` from `Accept-Language` header with locale-suffixed KV cache keys. Language preference persisted in Zustand store. Admin header includes a locale dropdown selector.
+
+### Cookie Consent & Privacy
+
+GDPR/compliance-ready cookie consent banner on both SSR and SPA pages. SSR uses an inline HTML/CSS/JS banner that reads/writes `murmur-cookie-consent` cookie. SPA uses a React `CookieConsent` component backed by Zustand store synced with the same cookie. Privacy policy at `/privacy` and About page at `/about` are available as both SSR and client-side routes.
 
 ## Deployment
 

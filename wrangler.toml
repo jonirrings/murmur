@@ -3,6 +3,7 @@ name = "murmur"
 main = "src/index.ts"
 compatibility_date = "2025-12-01"
 compatibility_flags = ["nodejs_compat"]
+routes = [{ pattern = "mm.o0x0o.com", custom_domain = true }]
 
 # 客户端静态资源
 [assets]
@@ -21,20 +22,17 @@ run_worker_first = true
 # ────────────────────────────────────────────────────────────────────
 
 # D1 数据库
-# TODO: 运行 `wrangler d1 create murmur-db` 后替换 database_id
 [[d1_databases]]
 binding = "DB"
 database_name = "murmur-db"
-database_id = "placeholder-local-only"
+database_id = "14a1028b-7087-436c-8a43-65e81436d408"
 
 # KV 命名空间（SSR 缓存）
-# TODO: 运行 `wrangler kv namespace create KV` 后替换 id
 [[kv_namespaces]]
 binding = "KV"
-id = "placeholder-local-only"
+id = "a7554755490144d59ea1f842ab81fd71"
 
 # R2 存储桶（附件）
-# TODO: 运行 `wrangler r2 bucket create murmur-assets`（如尚不存在）
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "murmur-assets"
@@ -49,12 +47,13 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["CollaborationRoomDO", "RateLimiterDO"]
-
-[[migrations]]
-tag = "v2"
-new_classes = ["VisitorCounterDO"]
+new_sqlite_classes = ["CollaborationRoomDO", "RateLimiterDO", "VisitorCounterDO"]
 
 # Cron Triggers — periodic cleanup
 [triggers]
 crons = ["*/30 * * * *"]
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true

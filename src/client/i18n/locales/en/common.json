@@ -102,5 +102,44 @@
     "1mo": "1 Month",
     "views": " views",
     "noHotNotes": "No hot notes yet"
+  },
+  "cookie": {
+    "title": "We value your privacy",
+    "description": "We use cookies and similar technologies to enhance your experience, analyze traffic, and serve content. By clicking \"Accept all\", you consent to our use of cookies.",
+    "acceptAll": "Accept all",
+    "acceptEssential": "Accept essential only",
+    "settings": "Cookie settings"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: {{date}}",
+    "intro": "Your privacy is important to us. This policy explains how Murmur collects, uses, and protects your personal information when you use our service.",
+    "infoCollect": "Information We Collect",
+    "infoCollectContent": "We collect information you provide directly (such as your name and email when you register) and technical information collected automatically (such as IP address, browser type, and device information through cookies and similar technologies).",
+    "howWeUse": "How We Use Your Information",
+    "howWeUseContent": "We use your information to provide and improve our services, communicate with you, ensure security, and comply with legal obligations.",
+    "cookies": "Cookies and Tracking Technologies",
+    "cookiesContent": "We use essential cookies for authentication and site functionality, and analytics cookies to understand how our service is used. You can manage your cookie preferences at any time through the cookie consent banner.",
+    "dataSharing": "Data Sharing",
+    "dataSharingContent": "We do not sell your personal information. We may share data with service providers who assist in operating our platform, and when required by law.",
+    "dataRetention": "Data Retention",
+    "dataRetentionContent": "We retain your personal data for as long as your account is active or as needed to provide services. You may request deletion of your data at any time.",
+    "yourRights": "Your Rights",
+    "yourRightsContent": "Depending on your jurisdiction, you may have the right to access, correct, delete, or port your personal data, and to object to or restrict processing.",
+    "contact": "Contact Us",
+    "contactContent": "If you have questions about this privacy policy, please contact us through the appropriate channels."
+  },
+  "about": {
+    "title": "About",
+    "description": "Murmur is a minimalist note-taking and publishing platform built on Cloudflare Workers. It focuses on writing, sharing, and collaboration — fast, private, and reliable.",
+    "features": "Features",
+    "feature1": "Markdown editing with real-time collaboration",
+    "feature2": "Server-side rendered public pages for SEO and performance",
+    "feature3": "Full-text search across all your notes",
+    "feature4": "Role-based access control with admin, author, and commenter roles",
+    "feature5": "Privacy-first: cookie consent, data transparency, and user control",
+    "openSource": "Open Source",
+    "openSourceDesc": "Murmur is open source. You can view the source code, report issues, or contribute on GitHub.",
+    "viewOnGithub": "View on GitHub"
   }
 }

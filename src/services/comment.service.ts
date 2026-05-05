@@ -164,28 +164,28 @@ export class CommentService {
 
 export class CommentNotFoundError extends Error {
   constructor() {
-    super("评论不存在");
+    super("Comment not found");
     this.name = "CommentNotFoundError";
   }
 }
 
 export class CommentForbiddenError extends Error {
   constructor() {
-    super("无权操作此评论");
+    super("Comment forbidden");
     this.name = "CommentForbiddenError";
   }
 }
 
 export class CommentNoteNotPublishedError extends Error {
   constructor() {
-    super("只能在已发布的笔记下评论");
+    super("Comment on unpublished note");
     this.name = "CommentNoteNotPublishedError";
   }
 }
 
 export class CommentDuplicateError extends Error {
   constructor() {
-    super("请勿重复提交相同评论");
+    super("Duplicate comment");
     this.name = "CommentDuplicateError";
   }
 }

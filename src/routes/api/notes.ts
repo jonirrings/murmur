@@ -17,6 +17,7 @@ import {
 } from "@/services/note.service";
 import { SsrCache } from "@/services/cache.service";
 import type { HotPeriod } from "@/db/repositories/view.repo";
+import { t } from "@/shared/i18n/server";
 
 const hotNotesQuerySchema = z.object({
   period: z.enum(["1h", "1d", "1w", "1mo"]).default("1d"),
@@ -151,16 +152,20 @@ app.delete("/:id", requireAuthor, async (c) => {
 
 // Error mapping
 app.onError((err, c) => {
+  const locale = c.get("language");
   if (err instanceof NoteNotFoundError) {
-    return c.json({ error: { code: "NOT_FOUND", message: err.message } }, 404);
+    return c.json({ error: { code: "NOT_FOUND", message: t("noteNotFound", locale) } }, 404);
   }
   if (err instanceof NoteForbiddenError) {
-    return c.json({ error: { code: "FORBIDDEN", message: err.message } }, 403);
+    return c.json({ error: { code: "FORBIDDEN", message: t("error.noteForbidden", locale) } }, 403);
   }
   if (err instanceof SlugConflictError) {
-    return c.json({ error: { code: "CONFLICT", message: err.message } }, 409);
+    return c.json({ error: { code: "CONFLICT", message: t("error.slugConflict", locale) } }, 409);
   }
-  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
+  return c.json(
+    { error: { code: "INTERNAL_ERROR", message: t("error.internalError", locale) } },
+    500,
+  );
 });
 
 export default app;

@@ -5,6 +5,7 @@ import { UserRepo } from "@/db/repositories/user.repo";
 import { CommentRepo } from "@/db/repositories/comment.repo";
 import { notes, account, passkey } from "@/db/schema";
 import { eq, sql, and } from "drizzle-orm";
+import { t } from "@/shared/i18n/server";
 
 const app = new Hono<Env>();
 
@@ -54,7 +55,12 @@ app.delete("/linked-accounts/:providerId", requireAuth, async (c) => {
     .get();
 
   if (!linked) {
-    return c.json({ error: { code: "NOT_FOUND", message: "未找到关联账号" } }, 404);
+    return c.json(
+      {
+        error: { code: "NOT_FOUND", message: t("error.linkedAccountNotFound", c.get("language")) },
+      },
+      404,
+    );
   }
 
   // Check user has at least one other login method
@@ -72,7 +78,7 @@ app.delete("/linked-accounts/:providerId", requireAuth, async (c) => {
 
   if (otherAccounts.length === 0 && userPasskeys.length === 0) {
     return c.json(
-      { error: { code: "CANNOT_UNLINK", message: "无法解绑：你需要至少保留一种其他登录方式。" } },
+      { error: { code: "CANNOT_UNLINK", message: t("error.cannotUnlink", c.get("language")) } },
       400,
     );
   }

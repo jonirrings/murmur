@@ -1,0 +1,31 @@
+{
+  "form": {
+    "placeholder": "コメントを書く...",
+    "submit": "コメントを投稿",
+    "submitting": "投稿中...",
+    "emptyError": "コメントを入力してください",
+    "tooLongError": "コメントは2000文字以内にしてください",
+    "failed": "コメントの投稿に失敗しました。後でもう一度お試しください"
+  },
+  "list": {
+    "loading": "コメントを読み込み中...",
+    "loadError": "コメントの読み込みに失敗しました",
+    "heading": "コメント ({{count}})",
+    "empty": "コメントはまだありません",
+    "loadMore": "もっと見る"
+  },
+  "item": {
+    "pending": "保留中",
+    "hidden": "非表示"
+  },
+  "review": {
+    "approve": "承認",
+    "reject": "拒否",
+    "hide": "非表示",
+    "unhide": "表示"
+  },
+  "admin": {
+    "title": "コメント",
+    "noteLabel": "ノート："
+  }
+}

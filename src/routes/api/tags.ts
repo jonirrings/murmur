@@ -9,6 +9,7 @@ import {
   TagNotFoundError,
   TagInUseError,
 } from "@/services/tag.service";
+import { t } from "@/shared/i18n/server";
 
 const app = new Hono<Env>();
 
@@ -39,16 +40,20 @@ app.delete("/:id", requireAdmin, async (c) => {
 });
 
 app.onError((err, c) => {
+  const locale = c.get("language");
   if (err instanceof TagSlugConflictError) {
-    return c.json({ error: { code: "CONFLICT", message: err.message } }, 409);
+    return c.json({ error: { code: "CONFLICT", message: t("error.tagSlugExists", locale) } }, 409);
   }
   if (err instanceof TagNotFoundError) {
-    return c.json({ error: { code: "NOT_FOUND", message: err.message } }, 404);
+    return c.json({ error: { code: "NOT_FOUND", message: t("error.tagNotFound", locale) } }, 404);
   }
   if (err instanceof TagInUseError) {
-    return c.json({ error: { code: "CONFLICT", message: err.message } }, 409);
+    return c.json({ error: { code: "CONFLICT", message: t("error.tagInUse", locale) } }, 409);
   }
-  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
+  return c.json(
+    { error: { code: "INTERNAL_ERROR", message: t("error.internalError", locale) } },
+    500,
+  );
 });
 
 export default app;

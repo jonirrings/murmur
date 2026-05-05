@@ -102,5 +102,44 @@
     "1mo": "1 月",
     "views": "次浏览",
     "noHotNotes": "暂无热门笔记"
+  },
+  "cookie": {
+    "title": "我们重视您的隐私",
+    "description": "我们使用 Cookie 及类似技术来提升您的体验、分析流量并提供内容。点击「全部接受」即表示您同意我们使用 Cookie。",
+    "acceptAll": "全部接受",
+    "acceptEssential": "仅接受必要",
+    "settings": "Cookie 设置"
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "lastUpdated": "最后更新：{{date}}",
+    "intro": "我们非常重视您的隐私。本政策说明了 Murmur 在您使用我们的服务时如何收集、使用和保护您的个人信息。",
+    "infoCollect": "我们收集的信息",
+    "infoCollectContent": "我们收集您直接提供的信息（如注册时的姓名和电子邮件），以及通过 Cookie 和类似技术自动收集的技术信息（如 IP 地址、浏览器类型和设备信息）。",
+    "howWeUse": "我们如何使用您的信息",
+    "howWeUseContent": "我们使用您的信息来提供和改进服务、与您沟通、确保安全以及遵守法律义务。",
+    "cookies": "Cookie 和跟踪技术",
+    "cookiesContent": "我们使用必要的 Cookie 用于身份验证和网站功能，以及分析性 Cookie 来了解我们服务的使用情况。您可以随时通过 Cookie 同意横幅管理您的 Cookie 偏好。",
+    "dataSharing": "数据共享",
+    "dataSharingContent": "我们不会出售您的个人信息。我们可能会与协助运营平台的服务提供商共享数据，以及在法律要求时共享。",
+    "dataRetention": "数据保留",
+    "dataRetentionContent": "在您的账户活跃期间或提供服务所需期间，我们会保留您的个人数据。您可以随时请求删除您的数据。",
+    "yourRights": "您的权利",
+    "yourRightsContent": "根据您所在的司法管辖区，您可能有权访问、更正、删除或移植您的个人数据，以及反对或限制处理。",
+    "contact": "联系我们",
+    "contactContent": "如果您对本隐私政策有疑问，请通过适当的渠道与我们联系。"
+  },
+  "about": {
+    "title": "关于",
+    "description": "Murmur 是一个基于 Cloudflare Workers 的极简笔记与发布平台。专注于写作、分享与协作——快速、隐私、可靠。",
+    "features": "特性",
+    "feature1": "Markdown 编辑，支持实时协作",
+    "feature2": "服务端渲染公开页面，优化 SEO 与性能",
+    "feature3": "全站全文搜索",
+    "feature4": "基于角色的访问控制：管理员、作者、评论者",
+    "feature5": "隐私优先：Cookie 同意、数据透明、用户可控",
+    "openSource": "开源",
+    "openSourceDesc": "Murmur 是开源项目。您可以在 GitHub 上查看源代码、报告问题或参与贡献。",
+    "viewOnGithub": "在 GitHub 上查看"
   }
 }

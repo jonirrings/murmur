@@ -40,6 +40,7 @@ export function NoteEditorPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<NoteCategory>("note");
+  const [slug, setSlug] = useState("");
   const [noteId, setNoteId] = useState<string | null>(id ?? null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewHtml, setPreviewHtml] = useState("");
@@ -51,6 +52,7 @@ export function NoteEditorPage() {
       setTitle(existingNote.title);
       setContent(existingNote.content);
       setCategory(existingNote.category);
+      setSlug(existingNote.slug ?? "");
     }
   }, [existingNote]);
 
@@ -111,7 +113,7 @@ export function NoteEditorPage() {
   const handlePublish = async () => {
     if (!noteId) return;
     await save();
-    publishNote.mutate({ id: noteId });
+    publishNote.mutate({ id: noteId, slug: slug.trim() || undefined });
   };
 
   const handleUnpublish = async () => {
@@ -231,8 +233,21 @@ export function NoteEditorPage() {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder={t("editor.titlePlaceholder")}
-        className="w-full text-2xl font-bold border-none outline-none mb-3 bg-transparent text-gray-900 placeholder-gray-300 dark:text-white dark:placeholder-gray-600"
+        className="w-full text-2xl font-bold border-none outline-none mb-1 bg-transparent text-gray-900 placeholder-gray-300 dark:text-white dark:placeholder-gray-600"
       />
+
+      {/* Slug */}
+      <div className="flex items-center gap-2 mb-3">
+        <label className="text-xs text-gray-400 whitespace-nowrap">{t("editor.slugLabel")}</label>
+        <input
+          type="text"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value.replace(/[^a-zA-Z0-9-]/g, "").slice(0, 100))}
+          placeholder={t("editor.slugPlaceholder")}
+          className="flex-1 text-sm border-none outline-none bg-transparent text-gray-500 placeholder-gray-300 dark:text-gray-400 dark:placeholder-gray-600 font-mono"
+        />
+        {slug && <span className="text-xs text-gray-400">/note/{slug}</span>}
+      </div>
 
       {/* Editor / Preview */}
       {showPreview ? (

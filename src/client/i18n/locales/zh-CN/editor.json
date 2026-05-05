@@ -25,6 +25,8 @@
     "editMode": "编辑",
     "previewMode": "预览",
     "titlePlaceholder": "标题",
-    "contentPlaceholder": "开始写作..."
+    "contentPlaceholder": "开始写作...",
+    "slugLabel": "Slug",
+    "slugPlaceholder": "自定义链接（留空自动生成）"
   }
 }

@@ -4,6 +4,7 @@ import { requireAuthor } from "@/auth/middleware";
 import { notes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { attachments } from "@/db/schema";
+import { t } from "@/shared/i18n/server";
 
 const app = new Hono<Env>();
 
@@ -26,20 +27,39 @@ app.post("/", requireAuthor, async (c) => {
   const file = body["file"];
 
   if (!file || !(file instanceof File)) {
-    return c.json({ error: { code: "VALIDATION_ERROR", message: "请上传文件" } }, 400);
+    return c.json(
+      { error: { code: "VALIDATION_ERROR", message: t("error.fileRequired", c.get("language")) } },
+      400,
+    );
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    return c.json({ error: { code: "VALIDATION_ERROR", message: "文件大小不能超过 10MB" } }, 400);
+    return c.json(
+      { error: { code: "VALIDATION_ERROR", message: t("error.fileTooLarge", c.get("language")) } },
+      400,
+    );
   }
 
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return c.json({ error: { code: "VALIDATION_ERROR", message: "不支持的文件类型" } }, 400);
+    return c.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: t("error.unsupportedFileType", c.get("language")),
+        },
+      },
+      400,
+    );
   }
 
   const noteId = body["noteId"];
   if (typeof noteId !== "string" || !noteId) {
-    return c.json({ error: { code: "VALIDATION_ERROR", message: "请指定笔记 ID" } }, 400);
+    return c.json(
+      {
+        error: { code: "VALIDATION_ERROR", message: t("error.noteIdRequired", c.get("language")) },
+      },
+      400,
+    );
   }
 
   // Verify note exists and user owns it
@@ -51,11 +71,17 @@ app.post("/", requireAuthor, async (c) => {
     .get();
 
   if (!note) {
-    return c.json({ error: { code: "NOT_FOUND", message: "笔记不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("noteNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   if (note.authorId !== user.id && user.role !== "admin") {
-    return c.json({ error: { code: "FORBIDDEN", message: "无权操作此笔记" } }, 403);
+    return c.json(
+      { error: { code: "FORBIDDEN", message: t("error.noteForbidden", c.get("language")) } },
+      403,
+    );
   }
 
   // Upload to R2
@@ -94,12 +120,18 @@ app.get("/:id", async (c) => {
   const attachment = await db.select().from(attachments).where(eq(attachments.id, id)).get();
 
   if (!attachment) {
-    return c.json({ error: { code: "NOT_FOUND", message: "附件不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.attachmentNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   const object = await c.env.R2.get(attachment.r2Key);
   if (!object) {
-    return c.json({ error: { code: "NOT_FOUND", message: "文件不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.fileNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   return new Response(object.body, {
@@ -120,7 +152,10 @@ app.delete("/:id", requireAuthor, async (c) => {
   const attachment = await db.select().from(attachments).where(eq(attachments.id, id)).get();
 
   if (!attachment) {
-    return c.json({ error: { code: "NOT_FOUND", message: "附件不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.attachmentNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   // Check ownership
@@ -131,7 +166,15 @@ app.delete("/:id", requireAuthor, async (c) => {
     .get();
 
   if (note && note.authorId !== user.id && user.role !== "admin") {
-    return c.json({ error: { code: "FORBIDDEN", message: "无权删除此附件" } }, 403);
+    return c.json(
+      {
+        error: {
+          code: "FORBIDDEN",
+          message: t("error.attachmentDeleteForbidden", c.get("language")),
+        },
+      },
+      403,
+    );
   }
 
   // Delete from R2 and D1

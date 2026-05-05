@@ -39,21 +39,21 @@ export class TagService {
 
 export class TagSlugConflictError extends Error {
   constructor() {
-    super("标签 Slug 已存在");
+    super("Tag slug already exists");
     this.name = "TagSlugConflictError";
   }
 }
 
 export class TagNotFoundError extends Error {
   constructor() {
-    super("标签不存在");
+    super("Tag not found");
     this.name = "TagNotFoundError";
   }
 }
 
 export class TagInUseError extends Error {
   constructor() {
-    super("标签正在使用中，无法删除");
+    super("Tag is in use");
     this.name = "TagInUseError";
   }
 }

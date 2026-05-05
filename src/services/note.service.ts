@@ -4,14 +4,19 @@ import { ViewRepo, type HotPeriod } from "@/db/repositories/view.repo";
 import { TagRepo } from "@/db/repositories/tag.repo";
 import type { CreateNoteInput, UpdateNoteInput } from "@/shared/schemas/note";
 import type { NoteCategory } from "@/shared/types";
+import { slugify } from "transliteration";
 
 function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 100);
+  // transliteration's slugify converts Chinese/Japanese/Korean etc. to Latin
+  // e.g. "你好世界" → "ni-hao-shi-jie", "Hello World" → "hello-world"
+  const slug = slugify(title, { lowercase: true, separator: "-", trim: true }).slice(0, 100);
+
+  // Fallback for edge cases where transliteration yields nothing
+  if (!slug || slug.replace(/-/g, "").length === 0) {
+    return crypto.randomUUID().slice(0, 8);
+  }
+
+  return slug;
 }
 
 function generateExcerpt(content: string, maxLen = 200): string {
@@ -176,21 +181,21 @@ export class NoteService {
 
 export class NoteNotFoundError extends Error {
   constructor() {
-    super("笔记不存在");
+    super("Note not found");
     this.name = "NoteNotFoundError";
   }
 }
 
 export class NoteForbiddenError extends Error {
   constructor() {
-    super("无权操作此笔记");
+    super("Note forbidden");
     this.name = "NoteForbiddenError";
   }
 }
 
 export class SlugConflictError extends Error {
   constructor() {
-    super("Slug 已被占用");
+    super("Slug conflict");
     this.name = "SlugConflictError";
   }
 }

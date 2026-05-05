@@ -5,7 +5,7 @@ import { useSession, signOut } from "@/client/lib/auth-client";
 import { useMe } from "@/client/queries/me";
 import { ThemeToggle } from "@/client/components/theme-toggle";
 import { useUiStore } from "@/client/stores/ui-store";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -20,6 +20,9 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { t } = useTranslation("common");
   const { locale, setLocale } = useUiStore();
+  const [localeOpen, setLocaleOpen] = useState(false);
+
+  const LOCALE_LABELS: Record<string, string> = { "zh-CN": "中文", en: "English", ja: "日本語" };
 
   const isLoading = sessionPending || meLoading;
 
@@ -86,12 +89,35 @@ function AdminLayout() {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button
-              onClick={() => setLocale(locale === "zh-CN" ? "en" : "zh-CN")}
-              className="rounded px-2 py-0.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-            >
-              {locale === "zh-CN" ? "EN" : "中"}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setLocaleOpen(!localeOpen)}
+                className="flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
+                {LOCALE_LABELS[locale] ?? locale}
+                <ChevronDown className="h-3 w-3" />
+              </button>
+              {localeOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setLocaleOpen(false)} />
+                  <ul className="absolute right-0 z-20 mt-1 w-28 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-600 dark:bg-gray-800">
+                    {Object.entries(LOCALE_LABELS).map(([key, label]) => (
+                      <li key={key}>
+                        <button
+                          onClick={() => {
+                            setLocale(key as "zh-CN" | "en" | "ja");
+                            setLocaleOpen(false);
+                          }}
+                          className={`w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700 ${locale === key ? "font-semibold text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300"}`}
+                        >
+                          {label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
             <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
               {sessionData.user.name ?? sessionData.user.email}
             </span>

@@ -28,11 +28,13 @@ src/
 │   └── api/              # API 路由
 ├── components/
 │   └── ssr/              # hono/jsx SSR 组件
-│       ├── layout.tsx    # HtmlDocument 外壳
+│       ├── layout.tsx    # HtmlDocument 外壳 + 导航 + 页脚 + Cookie 横幅
 │       ├── note-card.tsx # 笔记卡片
 │       ├── note-detail.tsx # 笔记详情 + 列表/标签/预览/错误页
 │       ├── comment-item.tsx # 评论项
 │       ├── pagination.tsx # 分页
+│       ├── privacy-page.tsx # 隐私政策 SSR 页面
+│       ├── about-page.tsx  # 关于 SSR 页面
 │       └── visitor-counter-script.tsx # WebSocket 实时访客脚本
 ├── services/             # 业务逻辑（不直接操作 DB）
 │   ├── view-tracker.service.ts # 阅读量统计（反爬虫 + CF Analytics 校准）
@@ -70,11 +72,15 @@ src/
 │   │   ├── index.ts      # i18next.init()
 │   │   └── locales/      # 按语言/命名空间组织
 │   │       ├── zh-CN/    # common, admin, auth, editor, comments
-│   │       └── en/       # common, admin, auth, editor, comments
+│   │       ├── en/       # common, admin, auth, editor, comments
+│   │       └── ja/       # common, admin, auth, editor, comments
 │   ├── pages/            # 页面组件（被 routes/ 引用）
 │   ├── components/       # 通用组件
+│   │   ├── cookie-consent.tsx # Cookie 同意横幅（SPA）
+│   │   ├── theme-toggle.tsx
+│   │   ├── theme-provider.tsx
 │   │   └── (no ui/ dir)  # 未使用 shadcn/ui，纯 Tailwind 手写
-│   ├── stores/           # Zustand 状态（含 locale）
+│   ├── stores/           # Zustand 状态（含 locale, cookieConsent）
 │   ├── queries/          # TanStack Query
 │   ├── schemas/          # Zod Schema
 │   ├── hooks/            # 自定义 Hooks (useAutoSave)
@@ -222,11 +228,11 @@ app.post("/", zValidator("json", createCommentSchema), handler);
 
 ### 3.7 i18n 约定
 
-- **客户端**：`i18next` + `react-i18next`，5 个命名空间（common, admin, auth, editor, comments）
+- **客户端**：`i18next` + `react-i18next`，5 个命名空间（common, admin, auth, editor, comments），支持 zh-CN / en / ja 三语
 - **服务端**：`src/shared/i18n/server.ts` 的 `detectLocale()` + `t()` 函数，用于 hono/jsx SSR 组件
-- **语言切换**：`useUiStore().setLocale()` 同时更新 Zustand 状态和 `i18next.changeLanguage()`
+- **语言切换**：`useUiStore().setLocale()` 同时更新 Zustand 状态和 `i18next.changeLanguage()`，管理后台使用下拉选择器切换
 - **Locale 持久化**：通过 Zustand persist 中间件存入 localStorage
-- **SSR locale 检测**：从 `Accept-Language` header 检测，默认 `zh-CN`
+- **SSR locale 检测**：从 `Accept-Language` header 检测，默认 `en`
 - **API 错误消息**：不做 i18n，客户端根据 error code 映射到本地化字符串
 - **禁止多 Key 拼接**：每个 i18n Key 必须语义完整，含插值参数
 
@@ -244,8 +250,8 @@ app.post("/", zValidator("json", createCommentSchema), handler);
 
 ### 4.1 SSR 与 SPA 边界
 
-- **公开页面**（`/`、`/note/:slug`、`/tag/:tag`）：Hono SSR 渲染（hono/jsx 组件），客户端仅轻量交互
-- **管理后台**（`/admin/*`、`/login`、`/setup`）：Vite 构建的 React SPA（TanStack Router），Worker 通过 `ASSETS` 绑定返回 `index.html`
+- **公开页面**（`/`、`/note/:slug`、`/tag/:tag`、`/category/:category`、`/hot`、`/privacy`、`/about`）：Hono SSR 渲染（hono/jsx 组件），客户端仅轻量交互
+- **管理后台**（`/admin/*`、`/login`、`/setup`、`/privacy`、`/about`）：Vite 构建的 React SPA（TanStack Router），Worker 通过 `ASSETS` 绑定返回 `index.html`
 - **Hono 路由分流**：`/api/*` → API，`/admin/*` + `/setup` + `/login` → ASSETS SPA fallback，`/assets/*` → ASSETS 静态资源，其余 → SSR
 - **Workers Assets 配置**：`wrangler.toml` 中 `[assets]` 设置 `run_worker_first = true`，`not_found_handling = "single-page-application"`，`binding = "ASSETS"`
 - **SSR locale 支持**：`detectLocale(acceptLanguage)` 检测语言，KV 缓存 key 附加 locale 后缀（如 `ssr:/zh-CN`）

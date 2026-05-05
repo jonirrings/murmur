@@ -310,6 +310,23 @@
   - 评论内容最大长度从 2000 字符缩减为 200 字符
   - `src/shared/schemas/comment.ts` + `CommentForm.tsx` 同步更新
 
+- [x] **5.16 Cookie 同意与隐私合规**
+  - 客户端 `CookieConsent` 组件（`src/client/components/cookie-consent.tsx`），Zustand 持久化 + `murmur-cookie-consent` cookie 同步
+  - SSR 内联 Cookie 横幅（`src/components/ssr/layout.tsx`），纯 HTML/CSS/JS 无 React 依赖
+  - SSR 隐私政策页面 `/privacy`（`src/components/ssr/privacy-page.tsx`）
+  - 客户端隐私政策页面 `/privacy`（`src/client/pages/privacy.tsx`）
+  - SSR 关于页面 `/about`（`src/components/ssr/about-page.tsx`）
+  - 客户端关于页面 `/about`（`src/client/pages/about.tsx`）
+  - SSR 页脚 + 导航栏添加 Privacy / About / GitHub 链接
+  - i18n 三语（zh-CN / en / ja）Cookie + Privacy + About 翻译键
+
+- [x] **5.17 三语支持完善**
+  - i18n 从双语（zh-CN / en）扩展为三语（zh-CN / en / ja）
+  - 客户端 i18next 添加 `ja` 命名空间
+  - 服务端 i18n 添加 `ja.json`
+  - 管理后台语言切换从双按钮改为下拉选择器
+  - SSR 语言检测 fallback 从 `zh-CN` 改为 `en`
+
 ### 交付物
 
 - 生产就绪的完整应用

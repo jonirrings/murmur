@@ -1,0 +1,32 @@
+{
+  "toolbar": {
+    "heading": "見出し",
+    "bold": "太字",
+    "italic": "斜体",
+    "code": "コード",
+    "link": "リンク",
+    "quote": "引用",
+    "unorderedList": "箇条書き",
+    "orderedList": "番号付きリスト",
+    "codeBlock": "コードブロック"
+  },
+  "collab": {
+    "collaborating": "{{count}}人が共同編集中",
+    "connected": "接続済み",
+    "disconnected": "切断",
+    "p2p": "P2P",
+    "latency": "{{ms}}ms"
+  },
+  "image": {
+    "uploadTitle": "画像をアップロード",
+    "uploadFailed": "画像のアップロードに失敗しました。もう一度お試しください"
+  },
+  "editor": {
+    "editMode": "編集",
+    "previewMode": "プレビュー",
+    "titlePlaceholder": "タイトル",
+    "contentPlaceholder": "書き始める...",
+    "slugLabel": "Slug",
+    "slugPlaceholder": "カスタムURLスラッグ（空欄で自動生成）"
+  }
+}

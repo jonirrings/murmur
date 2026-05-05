@@ -33,18 +33,22 @@ export function createAuth(db: Database, env: AuthEnv) {
     plugins: [
       magicLink({
         sendMagicLink: async ({ email, token, url }) => {
-          if (env.RESEND_API_KEY && env.RESEND_FROM_EMAIL) {
-            const result = await sendMagicLinkEmail(
-              { to: email, url, token },
-              env.RESEND_API_KEY,
-              env.RESEND_FROM_EMAIL,
-            );
-            if (!result.success) {
-              console.error(`[auth] Failed to send magic link to ${email}: ${result.error}`);
+          try {
+            if (env.RESEND_API_KEY && env.RESEND_FROM_EMAIL) {
+              const result = await sendMagicLinkEmail(
+                { to: email, url, token },
+                env.RESEND_API_KEY,
+                env.RESEND_FROM_EMAIL,
+              );
+              if (!result.success) {
+                console.error(`[auth] Failed to send magic link to ${email}: ${result.error}`);
+              }
+            } else {
+              // Dev fallback: log to console
+              console.log(`[auth] Magic link for ${email}: ${url}?token=${token}`);
             }
-          } else {
-            // Dev fallback: log to console
-            console.log(`[auth] Magic link for ${email}: ${url}?token=${token}`);
+          } catch (err) {
+            console.error(`[auth] sendMagicLink error:`, err);
           }
         },
       }),

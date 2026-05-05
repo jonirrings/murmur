@@ -14,6 +14,7 @@ import {
   CommentNoteNotPublishedError,
   CommentDuplicateError,
 } from "@/services/comment.service";
+import { t } from "@/shared/i18n/server";
 
 const app = new Hono<Env>();
 
@@ -55,7 +56,12 @@ app.post(
       const perNoteCheck = await checkRateLimit(stub, `comment:${user.id}:${noteId}`, 1, 60_000);
       if (!perNoteCheck.allowed) {
         return c.json(
-          { error: { code: "RATE_LIMITED", message: "每篇笔记每分钟只能评论一次" } },
+          {
+            error: {
+              code: "RATE_LIMITED",
+              message: t("error.commentRateLimitedPerNote", c.get("language")),
+            },
+          },
           429,
         );
       }
@@ -64,7 +70,12 @@ app.post(
       const hourlyCheck = await checkRateLimit(stub, `comment:${user.id}:hourly`, 20, 3_600_000);
       if (!hourlyCheck.allowed) {
         return c.json(
-          { error: { code: "RATE_LIMITED", message: "评论频率过高，请稍后再试" } },
+          {
+            error: {
+              code: "RATE_LIMITED",
+              message: t("error.commentRateLimited", c.get("language")),
+            },
+          },
           429,
         );
       }
@@ -74,8 +85,8 @@ app.post(
       if (!rateResult.allowed) {
         const message =
           rateResult.reason === "PER_NOTE_RATE_LIMITED"
-            ? "每篇笔记每分钟只能评论一次"
-            : "评论频率过高，请稍后再试";
+            ? t("error.commentRateLimitedPerNote", c.get("language"))
+            : t("error.commentRateLimited", c.get("language"));
         return c.json({ error: { code: "RATE_LIMITED", message } }, 429);
       }
     }
@@ -104,13 +115,24 @@ app.patch(
 
     if (input.adminHidden !== undefined) {
       if (user.role !== "admin") {
-        return c.json({ error: { code: "FORBIDDEN", message: "需要管理员权限" } }, 403);
+        return c.json(
+          { error: { code: "FORBIDDEN", message: t("error.requireAdmin", c.get("language")) } },
+          403,
+        );
       }
       const comment = await service.reviewByAdmin(id, input.adminHidden);
       return c.json({ data: comment });
     }
 
-    return c.json({ error: { code: "VALIDATION_ERROR", message: "请提供审核操作" } }, 400);
+    return c.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: t("error.reviewActionRequired", c.get("language")),
+        },
+      },
+      400,
+    );
   },
 );
 
@@ -154,19 +176,35 @@ app.get("/admin/comments/pending", requireAdmin, async (c) => {
 
 // Error mapping
 app.onError((err, c) => {
+  const locale = c.get("language");
   if (err instanceof CommentNotFoundError) {
-    return c.json({ error: { code: "NOT_FOUND", message: err.message } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.commentNotFound", locale) } },
+      404,
+    );
   }
   if (err instanceof CommentForbiddenError) {
-    return c.json({ error: { code: "FORBIDDEN", message: err.message } }, 403);
+    return c.json(
+      { error: { code: "FORBIDDEN", message: t("error.commentForbidden", locale) } },
+      403,
+    );
   }
   if (err instanceof CommentNoteNotPublishedError) {
-    return c.json({ error: { code: "VALIDATION_ERROR", message: err.message } }, 400);
+    return c.json(
+      { error: { code: "VALIDATION_ERROR", message: t("error.commentNoteNotPublished", locale) } },
+      400,
+    );
   }
   if (err instanceof CommentDuplicateError) {
-    return c.json({ error: { code: "DUPLICATE", message: err.message } }, 409);
+    return c.json(
+      { error: { code: "DUPLICATE", message: t("error.commentDuplicate", locale) } },
+      409,
+    );
   }
-  return c.json({ error: { code: "INTERNAL_ERROR", message: "服务内部错误" } }, 500);
+  return c.json(
+    { error: { code: "INTERNAL_ERROR", message: t("error.internalError", locale) } },
+    500,
+  );
 });
 
 export default app;

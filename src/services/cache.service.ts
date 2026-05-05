@@ -41,7 +41,7 @@ export class SsrCache {
   }
 
   async invalidateNote(slug: string, category?: string): Promise<void> {
-    const locales = ["zh-CN", "en"];
+    const locales = ["zh-CN", "en", "ja"];
     const hotPeriods = ["1h", "1d", "1w", "1mo"];
     await Promise.all(
       locales.flatMap((locale) => [

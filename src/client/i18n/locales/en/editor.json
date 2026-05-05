@@ -25,6 +25,8 @@
     "editMode": "Edit",
     "previewMode": "Preview",
     "titlePlaceholder": "Title",
-    "contentPlaceholder": "Start writing..."
+    "contentPlaceholder": "Start writing...",
+    "slugLabel": "Slug",
+    "slugPlaceholder": "Custom URL slug (auto-generated if empty)"
   }
 }

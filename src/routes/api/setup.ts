@@ -7,7 +7,7 @@ import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { SetupService } from "@/services/setup.service";
 import { UserRepo } from "@/db/repositories/user.repo";
-import { createAuth } from "@/auth/better-auth.config";
+import { t } from "@/shared/i18n/server";
 
 const app = new Hono<Env>();
 
@@ -32,13 +32,13 @@ app.post("/admin", zValidator("json", setupAdminSchema), async (c) => {
   // Block if admin already exists
   const alreadySetup = await service.isSetupComplete();
   if (alreadySetup) {
-    return c.json({ error: { code: "CONFLICT", message: "管理员已存在，无法重复初始化" } }, 409);
+    return c.json(
+      { error: { code: "CONFLICT", message: t("error.adminAlreadyExists", c.get("language")) } },
+      409,
+    );
   }
 
   const { name, email } = c.req.valid("json");
-
-  // Use better-auth to create the user, then promote to admin
-  const auth = createAuth(db, c.env);
   const existingUser = await new UserRepo(db).findByEmail(email);
 
   let userId: string;
@@ -57,25 +57,24 @@ app.post("/admin", zValidator("json", setupAdminSchema), async (c) => {
       .run();
     userId = existingUser.id;
   } else {
-    // Create user via better-auth admin API
-    const result = await auth.api.createUser({
-      body: {
-        email,
-        name,
-        role: "admin",
-      },
-    });
-    userId = result.user.id;
-
-    // Set approval status via Drizzle (better-auth doesn't manage this field)
+    // Create admin user directly via Drizzle (bypasses better-auth admin session requirement)
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
     await db
-      .update(user)
-      .set({
+      .insert(user)
+      .values({
+        id,
+        email,
+        emailVerified: false,
+        name,
+        createdAt: now,
+        updatedAt: now,
+        role: "admin",
         approvalStatus: "approved",
-        updatedAt: new Date().toISOString(),
+        twoFactorEnabled: false,
       })
-      .where(eq(user.id, userId))
       .run();
+    userId = id;
   }
 
   return c.json(

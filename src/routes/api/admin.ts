@@ -7,6 +7,7 @@ import { UserRepo } from "@/db/repositories/user.repo";
 import { CommentRepo } from "@/db/repositories/comment.repo";
 import { account, passkey, twoFactor, user } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { t } from "@/shared/i18n/server";
 
 const app = new Hono<Env>();
 
@@ -66,7 +67,10 @@ app.patch("/users/:id/approval", requireAdmin, zValidator("json", approvalSchema
 
   const target = await repo.findById(id);
   if (!target) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   const updated = await repo.updateApprovalStatus(id, approvalStatus);
@@ -82,7 +86,10 @@ app.patch("/users/:id/role", requireAdmin, zValidator("json", roleSchema), async
 
   const target = await repo.findById(id);
   if (!target) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   const updated = await repo.updateRole(id, role);
@@ -125,7 +132,10 @@ app.get("/users/:id", requireAdmin, async (c) => {
     .get();
 
   if (!targetUser) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   const [twoFactorRecord, userPasskeys, userAccounts] = await Promise.all([
@@ -164,7 +174,10 @@ app.delete("/users/:id/totp", requireAdmin, async (c) => {
 
   const targetUser = await db.select().from(user).where(eq(user.id, id)).get();
   if (!targetUser) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   await db.delete(twoFactor).where(eq(twoFactor.userId, id)).run();
@@ -180,7 +193,10 @@ app.delete("/users/:id/passkeys/:passkeyId", requireAdmin, async (c) => {
   const targetPasskey = await db.select().from(passkey).where(eq(passkey.id, passkeyId)).get();
 
   if (!targetPasskey || targetPasskey.userId !== id) {
-    return c.json({ error: { code: "NOT_FOUND", message: "Passkey 不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.passkeyNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   await db.delete(passkey).where(eq(passkey.id, passkeyId)).run();
@@ -195,7 +211,10 @@ app.delete("/users/:id/passkeys", requireAdmin, async (c) => {
 
   const targetUser = await db.select().from(user).where(eq(user.id, id)).get();
   if (!targetUser) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   await db.delete(passkey).where(eq(passkey.userId, id)).run();
@@ -211,7 +230,10 @@ app.post("/users/:id/ban", requireAdmin, async (c) => {
 
   const targetUser = await db.select().from(user).where(eq(user.id, id)).get();
   if (!targetUser) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   await db
@@ -230,7 +252,10 @@ app.post("/users/:id/unban", requireAdmin, async (c) => {
 
   const targetUser = await db.select().from(user).where(eq(user.id, id)).get();
   if (!targetUser) {
-    return c.json({ error: { code: "NOT_FOUND", message: "用户不存在" } }, 404);
+    return c.json(
+      { error: { code: "NOT_FOUND", message: t("error.userNotFound", c.get("language")) } },
+      404,
+    );
   }
 
   await db

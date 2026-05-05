@@ -9,7 +9,7 @@ import { ViewTrackerService } from "@/services/view-tracker.service";
 import { renderMarkdown } from "@/services/render.service";
 import { collabSessions } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { detectLocale, t } from "@/shared/i18n/server";
+import { t } from "@/shared/i18n/server";
 import { NOTE_CATEGORIES } from "@/shared/constants";
 import type { NoteCategory } from "@/shared/types";
 import type { HotPeriod } from "@/db/repositories/view.repo";
@@ -22,6 +22,8 @@ import {
   ErrorPage,
   HotNotesPage,
 } from "@/components/ssr/note-detail";
+import { PrivacyPage } from "@/components/ssr/privacy-page";
+import { AboutPage } from "@/components/ssr/about-page";
 
 const app = new Hono<Env>();
 
@@ -35,7 +37,7 @@ const HOT_PERIODS: Array<{ value: HotPeriod; labelZh: string; labelEn: string }>
 /** GET /hot — Hot/trending notes page */
 app.get("/hot", async (c) => {
   const kv = c.env.KV;
-  const locale = detectLocale(c.req.header("Accept-Language"));
+  const locale = c.get("language");
   const period = (c.req.query("period") || "1d") as HotPeriod;
   const validPeriod: HotPeriod = ["1h", "1d", "1w", "1mo"].includes(period) ? period : "1d";
   const cacheKey = `/hot/${validPeriod}/${locale}`;
@@ -68,7 +70,7 @@ app.get("/hot", async (c) => {
         periodViews: n.periodViews,
       }))}
       periodTabs={periodTabs}
-      acceptLanguage={c.req.header("Accept-Language")}
+      locale={locale}
       pageKey="/hot"
     />
   );
@@ -85,7 +87,7 @@ app.get("/hot", async (c) => {
 /** GET / — Home page: list published notes */
 app.get("/", async (c) => {
   const kv = c.env.KV;
-  const locale = detectLocale(c.req.header("Accept-Language"));
+  const locale = c.get("language");
   const cacheKey = `/${locale}`;
 
   if (kv) {
@@ -111,7 +113,7 @@ app.get("/", async (c) => {
       }))}
       total={total}
       page={page}
-      acceptLanguage={c.req.header("Accept-Language")}
+      locale={locale}
       pageKey="/"
     />
   );
@@ -125,12 +127,12 @@ app.get("/", async (c) => {
   return c.html(html);
 });
 
-/** GET /note/:slug — Note detail page */
+/** GET /note/:slug — Note detail page (also supports /note/:id as fallback) */
 app.get("/note/:slug", async (c) => {
-  const slug = c.req.param("slug");
+  const slugOrId = c.req.param("slug");
   const kv = c.env.KV;
-  const locale = detectLocale(c.req.header("Accept-Language"));
-  const cacheKey = `/note/${slug}/${locale}`;
+  const locale = c.get("language");
+  const cacheKey = `/note/${slugOrId}/${locale}`;
 
   if (kv) {
     const cache = new SsrCache(kv);
@@ -142,7 +144,13 @@ app.get("/note/:slug", async (c) => {
   const service = new NoteService(db);
 
   try {
-    const note = await service.getBySlug(slug);
+    // Try slug first, fall back to ID for URLs like /note/<uuid>
+    let note: Awaited<ReturnType<typeof service.getBySlug>>;
+    try {
+      note = await service.getBySlug(slugOrId);
+    } catch {
+      note = await service.getById(slugOrId);
+    }
 
     // Increment view count (non-blocking, bot-filtered)
     const viewTracker = new ViewTrackerService(db);
@@ -176,8 +184,8 @@ app.get("/note/:slug", async (c) => {
           content: cm.content,
           createdAt: cm.createdAt,
         }))}
-        acceptLanguage={c.req.header("Accept-Language")}
-        pageKey={`/note/${slug}`}
+        locale={locale}
+        pageKey={`/note/${note.slug ?? slugOrId}`}
       />
     );
 
@@ -189,13 +197,7 @@ app.get("/note/:slug", async (c) => {
 
     return c.html(html);
   } catch {
-    const html = (
-      <ErrorPage
-        title="404"
-        message={t("noteNotFound", locale)}
-        acceptLanguage={c.req.header("Accept-Language")}
-      />
-    );
+    const html = <ErrorPage title="404" message={t("noteNotFound", locale)} locale={locale} />;
     return c.html(html, 404);
   }
 });
@@ -204,7 +206,7 @@ app.get("/note/:slug", async (c) => {
 app.get("/tag/:tag", async (c) => {
   const tagSlug = c.req.param("tag");
   const kv = c.env.KV;
-  const locale = detectLocale(c.req.header("Accept-Language"));
+  const locale = c.get("language");
   const cacheKey = `/tag/${tagSlug}/${locale}`;
 
   if (kv) {
@@ -231,7 +233,7 @@ app.get("/tag/:tag", async (c) => {
       }))}
       total={total}
       page={page}
-      acceptLanguage={c.req.header("Accept-Language")}
+      locale={locale}
       pageKey={`/tag/${tagSlug}`}
     />
   );
@@ -249,16 +251,10 @@ app.get("/tag/:tag", async (c) => {
 app.get("/category/:category", async (c) => {
   const categorySlug = c.req.param("category");
   const kv = c.env.KV;
-  const locale = detectLocale(c.req.header("Accept-Language"));
+  const locale = c.get("language");
 
   if (!NOTE_CATEGORIES.includes(categorySlug as (typeof NOTE_CATEGORIES)[number])) {
-    const html = (
-      <ErrorPage
-        title="404"
-        message={t("categoryNotFound", locale)}
-        acceptLanguage={c.req.header("Accept-Language")}
-      />
-    );
+    const html = <ErrorPage title="404" message={t("categoryNotFound", locale)} locale={locale} />;
     return c.html(html, 404);
   }
 
@@ -288,7 +284,7 @@ app.get("/category/:category", async (c) => {
       }))}
       total={total}
       page={page}
-      acceptLanguage={c.req.header("Accept-Language")}
+      locale={locale}
       pageKey={`/category/${categorySlug}`}
     />
   );
@@ -306,7 +302,7 @@ app.get("/category/:category", async (c) => {
 app.get("/preview/:token", async (c) => {
   const token = c.req.param("token");
   const kv = c.env.KV;
-  const locale = detectLocale(c.req.header("Accept-Language"));
+  const locale = c.get("language");
 
   let noteId: string | null = null;
   if (kv) {
@@ -327,7 +323,7 @@ app.get("/preview/:token", async (c) => {
           title={t("previewExpired", locale)}
           message={t("previewLinkExpired", locale)}
           description={t("previewLinkExpiredDesc", locale)}
-          acceptLanguage={c.req.header("Accept-Language")}
+          locale={locale}
         />
       );
       return c.html(html, 410);
@@ -340,7 +336,7 @@ app.get("/preview/:token", async (c) => {
       <ErrorPage
         title={t("previewExpired", locale)}
         message={t("previewLinkInvalid", locale)}
-        acceptLanguage={c.req.header("Accept-Language")}
+        locale={locale}
       />
     );
     return c.html(html, 404);
@@ -365,22 +361,28 @@ app.get("/preview/:token", async (c) => {
           tags: note.tags,
         }}
         contentHtml={contentHtml}
-        acceptLanguage={c.req.header("Accept-Language")}
+        locale={locale}
         pageKey={`/preview/${token}`}
       />
     );
 
     return c.html(html);
   } catch {
-    const html = (
-      <ErrorPage
-        title="404"
-        message={t("noteNotFound", locale)}
-        acceptLanguage={c.req.header("Accept-Language")}
-      />
-    );
+    const html = <ErrorPage title="404" message={t("noteNotFound", locale)} locale={locale} />;
     return c.html(html, 404);
   }
+});
+
+/** GET /privacy — Privacy policy page */
+app.get("/privacy", async (c) => {
+  const locale = c.get("language");
+  return c.html(<PrivacyPage locale={locale} />);
+});
+
+/** GET /about — About page */
+app.get("/about", async (c) => {
+  const locale = c.get("language");
+  return c.html(<AboutPage locale={locale} />);
 });
 
 export default app;

@@ -4,7 +4,7 @@ import { HtmlDocument, formatDate } from "./layout";
 import { NoteCard } from "./note-card";
 import { CommentItem } from "./comment-item";
 import { Pagination } from "./pagination";
-import { detectLocale, t } from "@/shared/i18n/server";
+import { t } from "@/shared/i18n/server";
 
 interface NoteListPageProps {
   notes: Array<{
@@ -17,18 +17,11 @@ interface NoteListPageProps {
   }>;
   total: number;
   page: number;
-  acceptLanguage?: string | null;
+  locale: string;
   pageKey?: string;
 }
 
-export const NoteListPage: FC<NoteListPageProps> = ({
-  notes,
-  total,
-  page,
-  acceptLanguage,
-  pageKey,
-}) => {
-  const locale = detectLocale(acceptLanguage);
+export const NoteListPage: FC<NoteListPageProps> = ({ notes, total, page, locale, pageKey }) => {
   return (
     <HtmlDocument title="Murmur" locale={locale} pageKey={pageKey}>
       <div class="container">
@@ -74,19 +67,11 @@ interface TagPageProps {
   }>;
   total: number;
   page: number;
-  acceptLanguage?: string | null;
+  locale: string;
   pageKey?: string;
 }
 
-export const TagPage: FC<TagPageProps> = ({
-  tagSlug,
-  notes,
-  total,
-  page,
-  acceptLanguage,
-  pageKey,
-}) => {
-  const locale = detectLocale(acceptLanguage);
+export const TagPage: FC<TagPageProps> = ({ tagSlug, notes, total, page, locale, pageKey }) => {
   const heading = t("tag", locale, { slug: tagSlug });
   return (
     <HtmlDocument title={heading} locale={locale} pageKey={pageKey}>
@@ -143,7 +128,7 @@ interface NoteDetailPageProps {
     content: string;
     createdAt: string;
   }>;
-  acceptLanguage?: string | null;
+  locale: string;
   pageKey?: string;
 }
 
@@ -159,7 +144,7 @@ interface CategoryPageProps {
   }>;
   total: number;
   page: number;
-  acceptLanguage?: string | null;
+  locale: string;
   pageKey?: string;
 }
 
@@ -168,10 +153,9 @@ export const CategoryPage: FC<CategoryPageProps> = ({
   notes,
   total,
   page,
-  acceptLanguage,
+  locale,
   pageKey,
 }) => {
-  const locale = detectLocale(acceptLanguage);
   const categoryName = t(`category.${categorySlug}`, locale) || categorySlug;
   const heading = t("category", locale, { slug: categoryName });
   return (
@@ -211,10 +195,9 @@ export const NoteDetailPage: FC<NoteDetailPageProps> = ({
   note,
   contentHtml,
   comments,
-  acceptLanguage,
+  locale,
   pageKey,
 }) => {
-  const locale = detectLocale(acceptLanguage);
   const tagsHtml = (note.tags ?? []).map((tag) => (
     <a href={`/tag/${tag.slug}`} class="tag">
       {tag.name}
@@ -286,17 +269,11 @@ interface PreviewPageProps {
     tags?: Array<{ name: string; slug: string }> | null;
   };
   contentHtml: string;
-  acceptLanguage?: string | null;
+  locale: string;
   pageKey?: string;
 }
 
-export const PreviewPage: FC<PreviewPageProps> = ({
-  note,
-  contentHtml,
-  acceptLanguage,
-  pageKey,
-}) => {
-  const locale = detectLocale(acceptLanguage);
+export const PreviewPage: FC<PreviewPageProps> = ({ note, contentHtml, locale, pageKey }) => {
   const tagsHtml = (note.tags ?? []).map((tag) => (
     <a href={`/tag/${tag.slug}`} class="tag">
       {tag.name}
@@ -330,11 +307,10 @@ interface ErrorPageProps {
   title: string;
   message: string;
   description?: string;
-  acceptLanguage?: string | null;
+  locale: string;
 }
 
-export const ErrorPage: FC<ErrorPageProps> = ({ title, message, description, acceptLanguage }) => {
-  const locale = detectLocale(acceptLanguage);
+export const ErrorPage: FC<ErrorPageProps> = ({ title, message, description, locale }) => {
   return (
     <HtmlDocument title={title} locale={locale}>
       <h1>{message}</h1>
@@ -354,17 +330,11 @@ interface HotNotesPageProps {
     periodViews: number;
   }>;
   periodTabs: Array<{ value: string; label: string; active: boolean }>;
-  acceptLanguage?: string | null;
+  locale: string;
   pageKey?: string;
 }
 
-export const HotNotesPage: FC<HotNotesPageProps> = ({
-  notes,
-  periodTabs,
-  acceptLanguage,
-  pageKey,
-}) => {
-  const locale = detectLocale(acceptLanguage);
+export const HotNotesPage: FC<HotNotesPageProps> = ({ notes, periodTabs, locale, pageKey }) => {
   const pageTitle = locale === "zh-CN" ? "热门笔记" : "Hot Notes";
   const viewsLabel = locale === "zh-CN" ? "次浏览" : " views";
   const noHotNotes = locale === "zh-CN" ? "暂无热门笔记" : "No hot notes yet";
