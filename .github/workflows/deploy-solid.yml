@@ -1,0 +1,4 @@
+name: deploy-solid.yml
+on:
+
+jobs:

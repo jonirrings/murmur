@@ -1,0 +1,4 @@
+name: deploy-admin.yaml
+on:
+
+jobs:

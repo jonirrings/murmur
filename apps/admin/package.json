@@ -1,0 +1,33 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vinext dev --port 3001",
+    "build": "vinext build",
+    "start": "wrangler dev --config dist/server/wrangler.json",
+    "deploy": "vinext-cloudflare deploy --config dist/server/wrangler.json"
+  },
+  "dependencies": {
+    "@vinext/cloudflare": "1.0.0-beta.4",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-server-dom-webpack": "^19.2.8",
+    "vinext": "1.0.0-beta.4"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.50.0",
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "^6.0.5",
+    "@vitejs/plugin-rsc": "^0.5.32",
+    "@vinext/types": "1.0.0-beta.2",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "vite": "catalog:",
+    "wrangler": "^4.118.0"
+  }
+}

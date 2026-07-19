@@ -1,0 +1,27 @@
+# .github/workflows/test.yml
+name: Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck                                    # 全量类型检查
+      - run: pnpm -r test                                       # 单元 + 集成测试
+      - run: pnpm -r test:coverage                              # 覆盖率报告
+
+      # E2E 仅 main 分支触发，或手动 workflow_dispatch
+      - run: pnpm test:e2e
+        if: github.ref == 'refs/heads/main'

@@ -1,0 +1,63 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "murmur-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-19",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "m.o0x0o.com/api/*",       "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
+    { "pattern": "m.o0x0o.com/auth/*",      "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
+    { "pattern": "m.o0x0o.com/llms.txt",    "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
+    { "pattern": "m.o0x0o.com/robots.txt",  "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
+    { "pattern": "m.o0x0o.com/feed.xml",    "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
+    { "pattern": "m.o0x0o.com/sitemap.xml", "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "murmur-db",
+      "database_id": "335cba00-60f2-48bc-bf0f-acb61e5b9e32"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "ASSETS",
+      "bucket_name": "murmur-assets"
+    }
+  ]
+  // "compatibility_flags": [
+  //   "nodejs_compat"
+  // ],
+  // "vars": {
+  //   "MY_VAR": "my-variable"
+  // },
+  // "kv_namespaces": [
+  //   {
+  //     "binding": "MY_KV_NAMESPACE",
+  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  //   }
+  // ],
+  // "r2_buckets": [
+  //   {
+  //     "binding": "MY_BUCKET",
+  //     "bucket_name": "my-bucket"
+  //   }
+  // ],
+  // "d1_databases": [
+  //   {
+  //     "binding": "MY_DB",
+  //     "database_name": "my-database",
+  //     "database_id": ""
+  //   }
+  // ],
+  // "ai": {
+  //   "binding": "AI"
+  // },
+  // "observability": {
+  //   "enabled": true,
+  //   "head_sampling_rate": 1
+  // }
+}

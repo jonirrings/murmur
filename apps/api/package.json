@@ -1,0 +1,33 @@
+{
+  "name": "api",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply murmur-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply murmur-db --remote",
+    "db:studio": "drizzle-kit studio",
+    "auth:generate": "pnpx --yes @better-auth/cli@latest generate --config src/auth.config.ts --output ../../packages/db/src/auth.schema.ts -y"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.9.0",
+    "@murmur/api-types": "workspace:*",
+    "@murmur/config": "workspace:*",
+    "@murmur/db": "workspace:*",
+    "better-auth": "^1.6.23",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.31",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260718.1",
+    "@types/better-sqlite3": "^3.0.0",
+    "@types/node": "^26.1.1",
+    "better-sqlite3": "^11.0.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.0.0",
+    "wrangler": "^4.110.0"
+  }
+}

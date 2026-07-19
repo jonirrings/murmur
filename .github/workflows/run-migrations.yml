@@ -1,0 +1,4 @@
+name: run-migrations.yml
+on:
+
+jobs:

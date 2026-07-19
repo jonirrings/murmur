@@ -1,0 +1,52 @@
+{
+  "name": "portal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev --port 3000",
+    "generate-routes": "tsr generate",
+    "build": "vp build",
+    "start": "node .output/server/index.mjs",
+    "preview": "vp preview",
+    "test": "vp test run",
+    "deploy": "pnpm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "@cloudflare/vite-plugin": "^1.26.0",
+    "@fontsource/inter": "^5.1.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/router-plugin": "^1.133.21",
+    "@tanstack/solid-form": "latest",
+    "@tanstack/solid-query": "latest",
+    "@tanstack/solid-query-devtools": "latest",
+    "@tanstack/solid-router": "latest",
+    "@tanstack/solid-router-devtools": "latest",
+    "@tanstack/solid-router-ssr-query": "latest",
+    "@tanstack/solid-start": "latest",
+    "@tanstack/solid-store": "latest",
+    "@tanstack/store": "latest",
+    "better-auth": "^1.5.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "solid-js": "^1.9.12",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss": "^4.1.18",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
+    "@tanstack/devtools-vite": "latest",
+    "@tanstack/router-cli": "^1.133.21",
+    "jsdom": "^28.1.0",
+    "typescript": "latest",
+    "vite": "catalog:",
+    "vite-plugin-solid": "^2.11.12",
+    "wrangler": "^4.70.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lightningcss"
+    ]
+  }
+}

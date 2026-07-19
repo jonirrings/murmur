@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "murmur-admin",
+  "main": "vinext/server/fetch-handler",
+  "compatibility_date": "2026-07-19",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "m.o0x0o.com/admin/*", "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" }
+  ],
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "cache": {
+    "enabled": true
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "VINEXT_KV_CACHE",
+      "id": "90fac75a844a4a2cbc285710d2165542"
+    }
+  ]
+}

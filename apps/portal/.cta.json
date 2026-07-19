@@ -1,0 +1,16 @@
+{
+  "projectName": "solid",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "pnpm",
+  "includeExamples": false,
+  "tailwind": true,
+  "addOnOptions": {},
+  "envVarValues": {},
+  "git": false,
+  "install": true,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "solid",
+  "chosenAddOns": ["cloudflare", "tanstack-query", "solid-ui", "store", "form", "better-auth"]
+}
