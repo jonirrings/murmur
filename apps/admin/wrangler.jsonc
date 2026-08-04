@@ -9,7 +9,8 @@
   "workers_dev": false,
   "routes": [
     { "pattern": "m.o0x0o.com/admin", "zone_name": "o0x0o.com" },
-    { "pattern": "m.o0x0o.com/admin/*", "zone_name": "o0x0o.com" }
+    { "pattern": "m.o0x0o.com/admin/*", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/_next/*", "zone_name": "o0x0o.com" }
   ],
   "assets": {
     "directory": "dist/client",
