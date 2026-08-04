@@ -4,4 +4,23 @@
   "main": "@tanstack/solid-start/server-entry",
   "compatibility_date": "2026-07-19",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "m.o0x0o.com", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/posts", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/post/*", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/tags", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/tag/*", "zone_name": "o0x0o.com" }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true
+    }
+  }
 }

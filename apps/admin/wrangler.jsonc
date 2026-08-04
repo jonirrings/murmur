@@ -8,7 +8,8 @@
   ],
   "workers_dev": false,
   "routes": [
-    { "pattern": "m.o0x0o.com/admin/*", "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" }
+    { "pattern": "m.o0x0o.com/admin", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/admin/*", "zone_name": "o0x0o.com" }
   ],
   "assets": {
     "directory": "dist/client",
@@ -17,6 +18,17 @@
   },
   "cache": {
     "enabled": true
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true
+    }
   },
   "images": {
     "binding": "IMAGES"

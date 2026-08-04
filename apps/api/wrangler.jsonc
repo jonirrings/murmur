@@ -8,13 +8,24 @@
   ],
   "workers_dev": false,
   "routes": [
-    { "pattern": "m.o0x0o.com/api/*",       "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
-    { "pattern": "m.o0x0o.com/auth/*",      "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
-    { "pattern": "m.o0x0o.com/llms.txt",    "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
-    { "pattern": "m.o0x0o.com/robots.txt",  "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
-    { "pattern": "m.o0x0o.com/feed.xml",    "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" },
-    { "pattern": "m.o0x0o.com/sitemap.xml", "zone_id": "9919ce2c39dbf75adc2ed81d02ec6665" }
+    { "pattern": "m.o0x0o.com/api/*",       "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/auth/*",      "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/llms.txt",    "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/robots.txt",  "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/feed.xml",    "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/sitemap.xml", "zone_name": "o0x0o.com" }
   ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true
+    }
+  },
   "d1_databases": [
     {
       "binding": "DB",
