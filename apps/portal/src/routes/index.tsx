@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/solid-router";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  component: Home,
+  head: () => ({
+    meta: [{ title: "Murmur/碎碎念" }, { name: "description", content: "记录一些技术探索记录" }],
+    links: [{ rel: "alternate", type: "application/atom+xml", href: "/feed.xml" }],
+  }),
+});
 
 function Home() {
   return (
