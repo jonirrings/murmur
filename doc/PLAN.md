@@ -13,7 +13,8 @@
 - **单页模式**：一个列表页 + 详情页，类微博/碎碎念风格，无侧边栏、无评论
 - **标签驱动的信息架构**：无分类层级，通过标签筛选触达所有内容
 - **TanStack 全家桶前台 + vinext (React) 后台**：前台使用 TanStack Start + TanStack Router + TanStack Solid Query 全系产品，后端复用了同样的 TanStack Query 设计但运行在 Hono 上
-- **全站 Cloudflare**：独立域名 `m.o0x0o.com`，独立 D1 数据库，独立 Workers + Pages
+- **数据层共享**：一个 D1 数据库 + 一套 Drizzle Schema，仅 murmur-api 通过 D1 Binding 直连（admin 与 portal 不碰数据库，全部经 HTTP 消费同一份 API）
+- **全站 Cloudflare Workers**：独立域名 `m.o0x0o.com`，3 个独立 Workers（murmur-api + murmur-admin + murmur-portal）+ 独立 D1/R2，不再使用 Pages
 
 ---
 
@@ -22,27 +23,25 @@
 ```
                     ┌───────────────────────────────────┐
                     │     m.o0x0o.com                   │
-                    │     (Cloudflare Pages)            │
-                    │                                   │
-                    │     / → 前台 (TanStack Start)     │
-                    │     /admin → 后台 (vinext)        │
+                    │     3× Cloudflare Workers         │
+                    │     (Worker Route 按路径区分)      │
                     └──────────────┬────────────────────┘
                                    │
-                                   ▼
-                    ┌───────────────────────────────────┐
-                    │  murmur-api (Hono Worker)         │
-                    │  m.o0x0o.com/api/*                 │
-                    │                                   │
-                    │  ┌─────────────────────────────┐  │
-                    │  │  /api/public/snippets       │  │
-                    │  │  /api/public/tags           │  │
-                    │  │  /api/public/search         │  │
-                    │  │  /api/admin/* (需 auth)     │  │
-                    │  │  /auth/* (better-auth)      │  │
-                    │  └─────────────────────────────┘  │
-                    └──────────────┬────────────────────┘
-                                   │
-                                   ▼
+            ┌──────────────────────┼──────────────────────┐
+            │                      │                      │
+            ▼                      ▼                      ▼
+┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+│  murmur-api       │  │  murmur-admin     │  │  murmur-portal    │
+│  (Hono Worker)    │  │  (vinext Worker)  │  │  (TanStack Start  │
+│                   │  │                   │  │   Worker)         │
+│  /api/* /auth/*   │  │  /admin/*         │  │  /* 前台兜底      │
+│  llms / robots    │  │  SSR+静态资源一体 │  │  SSR+静态资源一体 │
+│  feed / sitemap   │  │  无 D1 绑定       │  │  无 D1 绑定       │
+│  唯一持有 D1/R2   │  │  → murmur-api     │  │  → murmur-api     │
+│  写权限           │  │                   │  │                   │
+└────────┬──────────┘  └───────────────────┘  └───────────────────┘
+         │
+         ▼
                     ┌───────────────────────────────────┐
                     │  Cloudflare D1 (murmur-db)        │
                     │  + R2 (murmur-assets)             │
@@ -59,46 +58,54 @@
 
 ### 2.1 Site & API Inventory
 
-| Entry          | Framework              | Type        | Description                                   |
-| -------------- | ---------------------- | ----------- | --------------------------------------------- |
-| **murmur-api** | Hono (Worker)          | API server  | All `/api/*` routes + `/auth/*` (better-auth) |
-| **/admin**     | vinext (React)         | Admin panel | Write snippets, manage tags, upload media     |
-| **/**          | TanStack Start (Solid) | User Portal | Public site (read only)                       |
+| Entry          | Framework              | Type                        | Description                                                       |
+| -------------- | ---------------------- | --------------------------- | ----------------------------------------------------------------- |
+| **murmur-api** | Hono (Worker)          | API server                  | All `/api/*` + `/auth/*` (better-auth) + 站点端点；唯一绑定 D1/R2 |
+| **/admin**     | vinext (React)         | Admin Worker（无 D1 绑定）  | Write snippets, manage tags, upload media（经 HTTP → murmur-api） |
+| **/**          | TanStack Start (Solid) | Portal Worker（无 D1 绑定） | Public site (read only，经 HTTP → murmur-api)                     |
 
 ### 2.2 部署拓扑
 
 ```
-Cloudflare Workers:
-└── murmur-api (Hono)               → m.o0x0o.com/api/* + /auth/*
-    ├── 绑定 D1 (murmur-db)
-    ├── 绑定 R2 (murmur-assets)
-    └── 唯一拥有 D1 写权限的部署单元
-
-Cloudflare Pages 项目:
-├── murmur-portal (TanStack Start)   → m.o0x0o.com/
-└── murmur-admin (vinext)           → m.o0x0o.com/admin
+Cloudflare Workers（同一 zone，Worker Route 按路径区分，全部部署单元都是 Worker）:
+├── murmur-api (Hono)               → m.o0x0o.com/api/*、/auth/*、
+│                                     /llms.txt、/robots.txt、/feed.xml、
+│                                     /sitemap.xml
+│    ├── 绑定 D1 (murmur-db)
+│    ├── 绑定 R2 (murmur-assets)
+│    └── 唯一拥有 D1/R2 写权限的部署单元
+│
+├── murmur-admin (vinext)           → m.o0x0o.com/admin/*（SSR + 静态资源一体，无 D1 绑定）
+└── murmur-portal (TanStack Start)  → m.o0x0o.com/*（前台兜底，SSR + 静态资源一体，无 D1 绑定）
 
 Cloudflare D1:
-└── murmur-db — 单独实例，与 blog 无关
+└── murmur-db — 单独实例，仅 murmur-api Worker 持有写 binding
 
 Cloudflare R2:
-└── murmur-assets — 单独 bucket
+└── murmur-assets — 单独 bucket，公开读，仅 murmur-api 写
 ```
 
 ### 2.3 路由分配
 
 ```
-Worker Route（murmur-api，优先级最高）:
-  /api/*      → murmur-api Worker
-  /auth/*     → murmur-api Worker (better-auth)
-  /llms.txt   → murmur-api Worker
-  /robots.txt → murmur-api Worker
-  /feed.xml   → murmur-api Worker
-  /sitemap.xml → murmur-api Worker
+不使用 Cloudflare Pages：所有部署单元都是 Cloudflare Workers，在同一 zone（m.o0x0o.com）
+上通过 custom domain 的 Worker Route 按路径区分。多个 Worker Route 命中时，边缘节点按
+URL 最长前缀匹配选一个 Worker 执行：
 
-Pages 自定义域名路径绑定:
-  /admin/*    → murmur-admin 项目
-  /           → murmur-portal 项目
+m.o0x0o.com 上的 Worker Routes（每个 Worker 在自己 wrangler.toml 的 routes 声明）:
+
+m.o0x0o.com/api/*       → murmur-api
+m.o0x0o.com/auth/*      → murmur-api (better-auth)
+m.o0x0o.com/llms.txt    → murmur-api
+m.o0x0o.com/robots.txt  → murmur-api
+m.o0x0o.com/feed.xml    → murmur-api
+m.o0x0o.com/sitemap.xml → murmur-api
+m.o0x0o.com/admin/*     → murmur-admin
+m.o0x0o.com/*           → murmur-portal（前台兜底，匹配根路径与其余所有路径）
+
+不需要 Dashboard 手动绑定、不需要 `_redirects`、不需要反向代理——路由全部由各 Worker 的
+routes 声明，随代码部署。admin 与 portal 两个 UI Worker（各框架 SSR + 静态资源一体）
+不绑定 D1/R2，纯 HTTP 消费 murmur-api。
 ```
 
 ---
@@ -107,27 +114,27 @@ Pages 自定义域名路径绑定:
 
 ### 3.1 全站共享层
 
-| 层次     | 选型                           | 说明                                               |
-| -------- | ------------------------------ | -------------------------------------------------- |
-| API 框架 | **Hono**                       | 超轻量路由 (~14KB)，内置 Zod/CORS/JWT 中间件       |
-| 数据库   | **Cloudflare D1**              | SQLite 兼容，零运维，独立实例 `murmur-db`          |
-| ORM      | **Drizzle ORM**                | TypeScript-first，D1 原生支持 `drizzle-orm/sqlite` |
-| 认证     | **better-auth**                | Drizzle ORM 集成（`drizzleAdapter`）               |
-| 验证码   | **Cloudflare Turnstile**       | 免费无限量，评论/提交表单保护                      |
-| 搜索     | **FTS5**                       | SQLite 内置全文索引，适合短文本                    |
-| 代码高亮 | **shiki**                      | CodeMirror 编辑器中预览 + 前台渲染均使用 shiki     |
-| 样式     | **Tailwind CSS v4**            | 自定义 Design Token                                |
-| 部署     | **Cloudflare Pages + Workers** |                                                    |
-| 存储     | **Cloudflare R2**              | 图片 + 附件，独立 bucket `murmur-assets`           |
-| CI       | **GitHub Actions**             | 自动构建 + 部署                                    |
+| 层次     | 选型                       | 说明                                                                 |
+| -------- | -------------------------- | -------------------------------------------------------------------- |
+| API 框架 | **Hono**                   | 超轻量路由 (~14KB)，内置 Zod/CORS/JWT 中间件                         |
+| 数据库   | **Cloudflare D1**          | SQLite 兼容，零运维，独立实例 `murmur-db`                            |
+| ORM      | **Drizzle ORM**            | TypeScript-first，D1 原生支持 `drizzle-orm/sqlite`                   |
+| 认证     | **better-auth**            | Drizzle ORM 集成（`drizzleAdapter`）                                 |
+| 验证码   | **Cloudflare Turnstile**   | 免费无限量，评论/提交表单保护                                        |
+| 搜索     | **FTS5**                   | SQLite 内置全文索引，适合短文本                                      |
+| 代码高亮 | **shiki**                  | CodeMirror 编辑器中预览 + 前台渲染均使用 shiki                       |
+| 样式     | **Tailwind CSS v4**        | 自定义 Design Token                                                  |
+| 部署     | **Cloudflare Workers × 3** | murmur-api + admin + portal 均为独立 Worker，custom route 按路径区分 |
+| 存储     | **Cloudflare R2**          | 图片 + 附件，独立 bucket `murmur-assets`                             |
+| CI       | **GitHub Actions**         | 自动构建 + 部署                                                      |
 
 ### 3.2 各站点技术栈
 
-| 站点           | Web 框架               | 组件库       | API 客户端                        | 路由            |
-| -------------- | ---------------------- | ------------ | --------------------------------- | --------------- |
-| **murmur-api** | Hono (Worker)          | —            | D1 + drizzle-orm                  | Hono 文件路由   |
-| **/admin**     | vinext (React)         | shadcn/ui    | TanStack Query → murmur-api       | App Router      |
-| **/**          | TanStack Start (Solid) | shadcn-solid | TanStack Solid Query → murmur-api | TanStack Router |
+| 站点           | Web 框架               | 组件库       | API 客户端                                      | 路由            |
+| -------------- | ---------------------- | ------------ | ----------------------------------------------- | --------------- |
+| **murmur-api** | Hono (Worker)          | —            | D1 + drizzle-orm（唯一持有 D1/R2 写 binding）   | Hono 文件路由   |
+| **/admin**     | vinext (React)         | shadcn/ui    | TanStack Query → murmur-api（无 D1 绑定）       | App Router      |
+| **/**          | TanStack Start (Solid) | shadcn-solid | TanStack Solid Query → murmur-api（无 D1 绑定） | TanStack Router |
 
 ---
 
@@ -530,9 +537,9 @@ murmur/
 │       └── package.json
 │
 ├── apps/
-│   ├── api/                       # murmur-api (Hono Worker)
-│   ├── admin/                     # vinext (React)
-│   └── portal/                     # TanStack Start (TanStack Router 文件路由)
+│   ├── api/                       # murmur-api (Hono Worker，唯一绑定 D1/R2)
+│   ├── admin/                     # vinext (React) → Worker（无 D1 绑定）
+│   └── portal/                    # TanStack Start Worker（无 D1 绑定）
 │
 ├── .github/workflows/
 │   ├── deploy-api.yml
@@ -548,9 +555,11 @@ murmur/
 
 ```
 packages/         apps/
-  db ──────────→  api
+  db ──────────→  api          (* 只有 api 持有 D1 写 binding)
   api-types ──→  api, admin, portal
   config ─────→  api, admin, portal
+
+  (*) admin / portal 不依赖 db 包，数据读写经 HTTP 调用 murmur-api
 ```
 
 ---
@@ -558,7 +567,7 @@ packages/         apps/
 ## 九、wrangler.toml
 
 ```toml
-# apps/api/wrangler.toml
+# apps/api/wrangler.toml — 唯一持有 D1 + R2 写权限的部署单元
 name = "murmur-api"
 main = "src/index.ts"
 compatibility_date = "2025-07-01"
@@ -583,16 +592,47 @@ binding = "ASSETS"
 bucket_name = "murmur-assets"
 ```
 
+```toml
+# apps/admin/wrangler.toml — UI Worker（SSR + 静态资源一体，无 D1 绑定）
+# main 指向 vinext 的 Cloudflare Workers 构建产物（以实际 adapter 输出为准）
+name = "murmur-admin"
+main = ".output/server/index.js"
+compatibility_date = "2025-07-01"
+workers_dev = false
+
+routes = [
+  { pattern = "m.o0x0o.com/admin/*", zone_name = "<domain-name>" },
+]
+```
+
+```toml
+# apps/portal/wrangler.toml — 前台 UI Worker（SSR + 静态资源一体，无 D1 绑定）
+# main 指向 TanStack Start / Vinxi 的 Cloudflare Workers 构建产物
+name = "murmur-portal"
+main = ".output/server/index.js"
+compatibility_date = "2025-07-01"
+workers_dev = false
+
+routes = [
+  { pattern = "m.o0x0o.com", zone_name = "<domain-name>" },      # 根路径
+  { pattern = "m.o0x0o.com/*", zone_name = "<domain-name>" },    # 前台其余路径（兜底）
+]
+```
+
+> **安全原则**：D1 和 R2 的写绑定**仅限 murmur-api Worker**，admin 和 portal 不绑定数据库。所有数据操作必须通过 HTTP API 经过 murmur-api 的权限校验。这一设计天然防止了 UI 端误操作或 XSS 攻击直接操作数据库。
+
 ---
 
 ## 十、认证体系
 
-与 blog 方案一致，只是独立部署在 murmur-db 中：
+认证行为统一在 murmur-api 中集中处理，admin 与 portal 不碰数据库、不各自实现认证：
 
 ```
 前台/后台 → /auth/* → murmur-api → D1 (murmur-db) → users / sessions / accounts
 ```
 
+- **集中认证**：better-auth 部署在 murmur-api Worker 内，所有站点共用同一个实例；只有 admin 需要登录
+- **唯一数据入口**：murmur-api 是唯一持有 D1/R2 写 binding 的单元，auth 表与业务表同库（murmur-db）
 - **单用户模式**：个人站点，只有一个管理员帐号
 - **GitHub OAuth** 作为主要登录方式
 - **邮箱 + 密码**作为备选
@@ -829,14 +869,14 @@ export const Route = createFileRoute("/post/$slug")({
 ```
 假设场景：日 PV 200，月发布 15 条，偶尔上传图片
 
-服务        月消耗                 是否超出免费额度
-──────      ─────────────          ─────────────────────
-Workers     200 × 30 = 6000 请求     ❌ 远低于 10万/天
-Pages       3 次部署                   ❌ 远低于 500/月
-D1          6000 行读 + 30 行写       ❌ 远低于 500万读/月
-R2          15 张图片 + 6000 次读     ❌ 远低于 1000万读/月
+服务        月消耗                                          是否超出免费额度
+──────      ─────────────                                   ─────────────────────
+Workers     200 PV/天 → 3 个 Worker 合计 ≈ 600-1500 请求/天   ❌ 远低于账户 10万/天
+D1          6000 行读 + 30 行写                              ❌ 远低于 500万读/月
+R2          15 张图片 + 6000 次读                            ❌ 远低于 1000万读/月
 
-结论: 全部在免费额度内，月费 $0。
+结论: 全部在免费额度内，月费 $0。取消 Pages 后不再有构建配额；3 个 Worker
+      共享账户级 10万请求/天，按日 PV 200 估算仍有大量余量。
 ```
 
 ---
@@ -855,7 +895,7 @@ R2          15 张图片 + 6000 次读     ❌ 远低于 1000万读/月
 
 ### Phase 1：API Worker
 
-- [ ] 脚手架 murmur-api (Hono + Cloudflare Workers)
+- [ ] 脚手架 murmur-api (Hono + Cloudflare Workers)，声明 routes + D1/R2 绑定
 - [ ] D1 绑定 + drizzle-orm 集成
 - [ ] better-auth 集成（drizzleAdapter）→ `/auth/*` 路由
 - [ ] 实现公开 API（snippets CRUD、tags、FTS5 search）
@@ -864,9 +904,10 @@ R2          15 张图片 + 6000 次读     ❌ 远低于 1000万读/月
 - [ ] 统一错误处理 + Zod 输入校验
 - [ ] 编写 `deploy-api.yml`
 
-### Phase 2：Admin 后台
+### Phase 2：Admin 后台（部署为 Worker）
 
 - [ ] 脚手架 admin 站点 (vinext)
+- [ ] 接入 vinext 的 Cloudflare Workers adapter，SSR + 静态资源打包为一个 Worker（无 D1 绑定）
 - [ ] 登录页（调用 better-auth）
 - [ ] 仪表盘（碎片数、标签数、近 7 天趋势）
 - [ ] CodeMirror 6 Markdown 编辑器 + 实时预览
@@ -875,9 +916,10 @@ R2          15 张图片 + 6000 次读     ❌ 远低于 1000万读/月
 - [ ] 媒体管理（图片上传、R2 存储）
 - [ ] 编写 `deploy-admin.yml`
 
-### Phase 3：Portal 前台
+### Phase 3：Portal 前台（部署为 Worker）
 
 - [ ] 脚手架 portal 站点（TanStack Start + TanStack Router 文件路由）
+- [ ] 接入 TanStack Start / Vinxi 的 Cloudflare Workers adapter，SSR + 静态资源打包为一个 Worker（无 D1 绑定）
 - [ ] TanStack Router + TanStack Solid Query 集成 → murmur-api
 - [ ] 定义文件路由（`routes/index.tsx`、`routes/post.$slug.tsx`、`routes/tags.tsx`）
 - [ ] 首页碎片流（倒序时间线 + 分页）
@@ -897,6 +939,7 @@ R2          15 张图片 + 6000 次读     ❌ 远低于 1000万读/月
 - [ ] `feed.xml`（Atom Feed，最新 20 条）
 - [ ] `sitemap.xml`（搜索引擎索引）
 - [ ] 前台 SEO meta（TanStack Router `head` export：`title` / `og:*` / `twitter:card`）
+- [ ] 核对三个 Worker 的 routes（含根路径兜底），确认边缘路由匹配符合预期
 - [ ] 撰写 README
 - [ ] 正式上线
 
@@ -906,14 +949,14 @@ R2          15 张图片 + 6000 次读     ❌ 远低于 1000万读/月
 
 murmur 是一个**完全独立**的项目：
 
-| 方面     | Blog                  | Murmur                |
-| -------- | --------------------- | --------------------- |
-| 目录     | `blog/`               | `murmur/`             |
-| 域名     | `blog.jonirrings.com` | `m.o0x0o.com`         |
-| D1       | `blog-db`             | `murmur-db`           |
-| R2       | `blog-assets`         | `murmur-assets`       |
-| Worker   | `blog-api`            | `murmur-api`          |
-| Pages    | 5 个项目              | 2 个项目              |
-| Monorepo | blog 内的 workspace   | murmur 内的 workspace |
+| 方面     | Blog                         | Murmur                       |
+| -------- | ---------------------------- | ---------------------------- |
+| 目录     | `blog/`                      | `murmur/`                    |
+| 域名     | `blog.jonirrings.com`        | `m.o0x0o.com`                |
+| D1       | `blog-db`                    | `murmur-db`                  |
+| R2       | `blog-assets`                | `murmur-assets`              |
+| Workers  | 7 个（api + admin + 5 前台） | 3 个（api + admin + portal） |
+| Pages    | 0（不用 Pages）              | 0（不用 Pages）              |
+| Monorepo | blog 内的 workspace          | murmur 内的 workspace        |
 
 两者无共享基础设施，各自独立部署和计费。如果有重复的工具代码（如 drizzle 配置、better-auth 配置模板），可以抽到单独的 `packages/` 公共包，但 murmur 本身不依赖 blog 的任何运行时资源。
