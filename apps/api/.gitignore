@@ -19,6 +19,9 @@ node_modules/
 .env
 .env.production
 .dev.vars
+# db
+*.db
+murmur-import.sql
 
 # logs
 logs/

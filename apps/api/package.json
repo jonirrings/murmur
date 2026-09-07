@@ -2,27 +2,32 @@
   "name": "api",
   "type": "module",
   "scripts": {
+    "cf-typegen": "wrangler types",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "typecheck": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
+    "deploy": "wrangler deploy --minify",
+    "auth:generate": "auth generate --output src/db/auth.schema.ts -y",
+    "db:generate:local": "NODE_ENV=development drizzle-kit generate",
+    "db:generate:remote": "NODE_ENV=production drizzle-kit generate",
+    "db:studio:remote": "NODE_ENV=production drizzle-kit studio",
+    "db:migrate:mock": "NODE_ENV=development drizzle-kit migrate",
     "db:migrate:local": "wrangler d1 migrations apply murmur-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply murmur-db --remote",
-    "auth:generate": "pnpx --yes @better-auth/cli@latest generate --config src/auth.config.ts --output ../../packages/db/src/auth.schema.ts -y"
+    "db:migrate:prod": "wrangler d1 migrations apply murmur-db --remote"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.9.1",
+    "@hono/zod-validator": "catalog:",
     "@murmur/api-types": "workspace:*",
     "@murmur/config": "workspace:*",
-    "@murmur/db": "workspace:*",
-    "better-auth": "^1.7.3",
-    "drizzle-orm": "^0.45.2",
-    "hono": "^4.13.7",
-    "zod": "^4.5.4"
+    "better-auth": "catalog:",
+    "drizzle-orm": "catalog:",
+    "hono": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@libsql/client": "catalog:",
     "@types/node": "^26.4.1",
-    "wrangler": "^4.129.0"
+    "auth": "catalog:",
+    "drizzle-kit": "catalog:",
+    "wrangler": "catalog:"
   }
 }

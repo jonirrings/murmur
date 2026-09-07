@@ -1,13 +1,21 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "lib": ["ESNext"],
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "jsxImportSource": "hono/jsx",
-    "types": ["node", "./worker-configuration.d.ts"]
+    "module": "ESNext",
+    "lib": ["ESNext"],
+    "types": ["node", "./worker-configuration.d.ts"],
+
+    /* Bundler mode */
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+
+    /* Linting */
+    "skipLibCheck": true,
+    "strict": true,
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   }
 }
