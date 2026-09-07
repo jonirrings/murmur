@@ -18,9 +18,9 @@ jobs:
           cache: "pnpm"
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck                                    # 全量类型检查
-      - run: pnpm -r test                                       # 单元 + 集成测试
-      - run: pnpm -r test:coverage                              # 覆盖率报告
+      - run: pnpm typecheck # 全量类型检查
+      - run: pnpm -r test # 单元 + 集成测试
+      - run: pnpm -r test:coverage # 覆盖率报告
 
       # E2E 仅 main 分支触发，或手动 workflow_dispatch
       - run: pnpm test:e2e

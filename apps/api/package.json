@@ -1,8 +1,12 @@
 {
-  "name": "api",
+  "name": "@murmur/api",
+  "version": "0.0.1",
+  "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
-    "cf-typegen": "wrangler types",
+    "cf-typegen": "wrangler types --env-interface APIBindings",
     "dev": "wrangler dev",
     "typecheck": "tsc --noEmit",
     "deploy": "wrangler deploy --minify",

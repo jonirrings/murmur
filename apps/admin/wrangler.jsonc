@@ -3,41 +3,39 @@
   "name": "murmur-admin",
   "main": "vinext/server/fetch-handler",
   "compatibility_date": "2026-07-19",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "routes": [
     { "pattern": "m.o0x0o.com/admin", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/admin/*", "zone_name": "o0x0o.com" },
-    { "pattern": "m.o0x0o.com/_next/*", "zone_name": "o0x0o.com" }
+    { "pattern": "m.o0x0o.com/_next/*", "zone_name": "o0x0o.com" },
   ],
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "none",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "cache": {
-    "enabled": true
+    "enabled": true,
   },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
     "logs": {
       "enabled": true,
-      "invocation_logs": true
+      "invocation_logs": true,
     },
     "traces": {
-      "enabled": true
-    }
+      "enabled": true,
+    },
   },
   "images": {
-    "binding": "IMAGES"
+    "binding": "IMAGES",
   },
   "kv_namespaces": [
     {
       "binding": "VINEXT_KV_CACHE",
-      "id": "90fac75a844a4a2cbc285710d2165542"
-    }
-  ]
+      "id": "90fac75a844a4a2cbc285710d2165542",
+    },
+  ],
 }

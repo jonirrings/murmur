@@ -13,9 +13,6 @@
 
     /* Linting */
     "skipLibCheck": true,
-    "strict": true,
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "strict": true
   }
 }

@@ -1,4 +1,4 @@
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/solid-router";
+import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 
 import "@fontsource/inter/400.css";
@@ -12,10 +12,11 @@ export const Route = createRootRouteWithContext()({
   head: () => ({
     links: [{ rel: "stylesheet", href: styleCss }],
   }),
-  shellComponent: RootComponent,
+  staleTime: Infinity,
+  shellComponent: ShellComponent,
 });
 
-function RootComponent() {
+function ShellComponent() {
   return (
     <html>
       <head>

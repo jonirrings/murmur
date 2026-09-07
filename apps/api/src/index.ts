@@ -10,47 +10,43 @@ import { adminStats } from "./routes/admin/stats";
 import { adminExport } from "./routes/admin/export";
 import { adminImport } from "./routes/admin/import";
 import { authRoutes } from "./routes/auth";
-import { llmsTxt, robotsTxt, sitemapXml, feedXml } from "./routes/static";
+import { health } from "./routes/health";
+import { feedXml, llmsTxt, robotsTxt, sitemapXml } from "./routes/static";
 import { rateLimiter } from "./middleware/rate-limit";
 import { errorHandler } from "./middleware/error";
 import { contentSignal } from "./middleware/content-signal";
 
-const app = new Hono();
-
-// ─── 全局中间件 ───
-app.use("*", cors());
-app.use("*", contentSignal);
-app.use("*", errorHandler);
-
-// ─── Rate Limiting（按端点差异化） ───
-app.use("/auth/*", rateLimiter({ windowMs: 60_000, max: 10 }));
-app.use("/api/admin/*", rateLimiter({ windowMs: 60_000, max: 120 }));
-app.use("/api/public/*", rateLimiter({ windowMs: 60_000, max: 300 }));
-
-// ─── 静态文件 ───
-app.get("/llms.txt", llmsTxt);
-app.get("/robots.txt", robotsTxt);
-app.get("/sitemap.xml", sitemapXml);
-app.get("/feed.xml", feedXml);
-
-// ─── Auth ───
-app.route("/auth", authRoutes);
-
-// ─── Public API ───
-app.route("/api/public/snippets", publicSnippets);
-app.route("/api/public/tags", publicTags);
-app.route("/api/public/search", publicSearch);
-
-// ─── Admin API（需认证） ───
-app.route("/api/admin/snippets", adminSnippets);
-app.route("/api/admin/tags", adminTags);
-app.route("/api/admin/media", adminMedia);
-app.route("/api/admin/stats", adminStats);
-app.route("/api/admin/export", adminExport);
-app.route("/api/admin/import", adminImport);
-
-// 注意：无需代理 /admin/* 和 /* 到 Pages。
-// Cloudflare Worker Routes 优先匹配 /api/* 和 /auth/*，
-// 未匹配的请求自动 fall through 到 Pages。
+// 注意：路由注册必须链式，否则 typeof app 只会停留在 BlankSchema，
+// hc<AppType> 推导的 client 类型会塌缩为 unknown。
+const app = new Hono()
+  // ─── 全局中间件 ───
+  .use("*", cors())
+  .use("*", contentSignal)
+  .use("*", errorHandler)
+  // ─── Rate Limiting（按端点差异化） ───
+  .use("/auth/*", rateLimiter({ windowMs: 60_000, max: 10 }))
+  .use("/api/admin/*", rateLimiter({ windowMs: 60_000, max: 120 }))
+  .use("/api/public/*", rateLimiter({ windowMs: 60_000, max: 300 }))
+  // ─── 静态文件 ───
+  .get("/llms.txt", llmsTxt)
+  .get("/robots.txt", robotsTxt)
+  .get("/sitemap.xml", sitemapXml)
+  .get("/feed.xml", feedXml)
+  // ─── 健康监测 ───
+  .get("/health", health)
+  // ─── Auth ───
+  .all("/api/auth/*", authRoutes)
+  // ─── Public API ───
+  .route("/api/public/snippets", publicSnippets)
+  .route("/api/public/tags", publicTags)
+  .route("/api/public/search", publicSearch)
+  // ─── Admin API（需认证） ───
+  .route("/api/admin/snippets", adminSnippets)
+  .route("/api/admin/tags", adminTags)
+  .route("/api/admin/media", adminMedia)
+  .route("/api/admin/stats", adminStats)
+  .route("/api/admin/export", adminExport)
+  .route("/api/admin/import", adminImport);
 
 export default app;
+export type AppType = typeof app;

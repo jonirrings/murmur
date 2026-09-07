@@ -7,6 +7,7 @@
   "workers_dev": false,
   "routes": [
     { "pattern": "m.o0x0o.com", "zone_name": "o0x0o.com" },
+    { "pattern": "m.o0x0o.com/health", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/favicon.ico", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/manifest.json", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/logo192.png", "zone_name": "o0x0o.com" },
@@ -15,17 +16,23 @@
     { "pattern": "m.o0x0o.com/posts", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/post/*", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/tags", "zone_name": "o0x0o.com" },
-    { "pattern": "m.o0x0o.com/tag/*", "zone_name": "o0x0o.com" }
+    { "pattern": "m.o0x0o.com/tag/*", "zone_name": "o0x0o.com" },
   ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
     "logs": {
       "enabled": true,
-      "invocation_logs": true
+      "invocation_logs": true,
     },
     "traces": {
-      "enabled": true
-    }
-  }
+      "enabled": true,
+    },
+  },
+  "services": [
+    {
+      "binding": "MURMUR_API",
+      "service": "murmur-api",
+    },
+  ],
 }

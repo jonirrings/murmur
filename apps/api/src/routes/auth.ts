@@ -1,10 +1,4 @@
-import { Hono } from "hono";
 import type { Context } from "hono";
+import { auth } from "../lib/auth";
 
-export const authRoutes = new Hono()
-  .get("/login", async (c: Context) => {
-    return c.json({ message: "auth placeholder" });
-  })
-  .get("/callback", async (c: Context) => {
-    return c.json({ message: "callback placeholder" });
-  });
+export const authRoutes = (c: Context) => auth.handler(c.req.raw);

@@ -1,0 +1,5 @@
+apps/portal/src/routeTree.gen.ts
+apps/portal/worker-configuration.d.ts
+apps/portal/wrangler.jsonc
+apps/api/worker-configuration.d.ts
+apps/api/wrangler.jsonc

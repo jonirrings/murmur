@@ -10,6 +10,7 @@ catalogMode: strict
 catalog:
   "@hono/zod-validator": ^0.9.1
   "@libsql/client": ^0.18.0
+  "@types/node": ^26.4.1
   auth: ^1.7.3
   better-auth: ^1.7.3
   better-sqlite3: ^11.10.0
