@@ -12,6 +12,7 @@ catalog:
   vite-plus: 0.2.5
 minimumReleaseAgeExclude:
   - hono@4.12.31
+  - "@cloudflare/workers-types@5.20260907.1"
 overrides:
   vite: "catalog:"
 peerDependencyRules:

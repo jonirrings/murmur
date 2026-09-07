@@ -8,12 +8,12 @@
   "scripts": {
     "test": "vp test run"
   },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  },
   "devDependencies": {
     "vite": "catalog:",
-    "vite-plus": "catalog:"
-  },
-  "dependencies": {
-    "@cloudflare/workers-types": "^4.0.0",
-    "drizzle-orm": "^0.45.2"
+    "vite-plus": "catalog:",
+    "wrangler": "^4.129.0"
   }
 }
