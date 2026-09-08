@@ -11,3 +11,11 @@ export const sessionMiddleware = createMiddleware<AppEnv>(async (c, next) => {
 
   await next();
 });
+
+export const requireSession = createMiddleware<AppEnv>(async (c, next) => {
+  const session = c.get("session");
+  if (!session) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  await next();
+});

@@ -14,7 +14,10 @@
   "dependencies": {
     "@base-ui/react": "catalog:",
     "@murmur/api": "workspace:*",
+    "@murmur/api-types": "workspace:*",
     "@shadcn/react": "catalog:",
+    "@tanstack/react-form": "catalog:",
+    "@tanstack/react-query": "catalog:",
     "@vinext/cloudflare": "1.0.0-beta.7",
     "class-variance-authority": "catalog:",
     "cmdk": "catalog:",

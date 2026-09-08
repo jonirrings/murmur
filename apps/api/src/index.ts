@@ -18,7 +18,7 @@ import { feedXml, llmsTxt, robotsTxt, sitemapXml } from "./routes/static";
 // import { rateLimiter } from "./middleware/rate-limit";
 import { errorHandler } from "./middleware/error";
 import { contentSignal } from "./middleware/content-signal";
-import { sessionMiddleware } from "./middleware/auth";
+import { requireSession, sessionMiddleware } from "./middleware/auth";
 import type { AppEnv } from "./types";
 
 // 注意：路由注册必须链式，否则 typeof app 只会停留在 BlankSchema，
@@ -49,6 +49,7 @@ const app = new Hono<AppEnv>()
   .route("/api/public/tags", publicTags)
   .route("/api/public/search", publicSearch)
   // ─── Admin API（需认证） ───
+  .use("/api/admin/*", requireSession)
   .route("/api/admin/snippets", adminSnippets)
   .route("/api/admin/tags", adminTags)
   .route("/api/admin/media", adminMedia)
