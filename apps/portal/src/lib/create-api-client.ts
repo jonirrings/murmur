@@ -1,7 +1,8 @@
 // lib/create-api-client.ts
 import { env } from "cloudflare:workers";
 import { hc } from "hono/client";
-import type { AppType } from "@murmur/api";
+
+import type { AppType } from "@murmur/api/src/types.ts";
 
 export function createServerApiClient(originalRequest?: Request) {
   const customFetch = env.MURMUR_API.fetch.bind(env.MURMUR_API);

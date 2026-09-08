@@ -1,10 +1,10 @@
 {
   "name": "@murmur/api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "types": "./src/types.ts",
   "scripts": {
     "cf-typegen": "wrangler types --env-interface APIBindings",
     "dev": "wrangler dev",
@@ -32,6 +32,7 @@
     "@types/node": "^26.4.1",
     "auth": "catalog:",
     "drizzle-kit": "catalog:",
+    "typescript": "catalog:",
     "wrangler": "catalog:"
   }
 }

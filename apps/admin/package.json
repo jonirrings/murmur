@@ -1,11 +1,12 @@
 {
   "name": "@murmur/admin",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
     "cf-typegen": "wrangler types --env-interface AdminBindings",
     "dev": "vinext dev --port 3001",
+    "typecheck": "tsc --noEmit",
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "deploy": "vinext-cloudflare deploy --config dist/server/wrangler.json"

@@ -5,6 +5,9 @@
   "compatibility_date": "2026-07-19",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
+  "vars": {
+    "BETTER_AUTH_URL": "https://m.o0x0o.com"
+  },
   "routes": [
     { "pattern": "m.o0x0o.com/api/*", "zone_name": "o0x0o.com" },
     { "pattern": "m.o0x0o.com/auth/*", "zone_name": "o0x0o.com" },

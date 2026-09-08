@@ -1,5 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { methodNotAllowed } from "hono/method-not-allowed";
+import { poweredBy } from "hono/powered-by";
+import { requestId } from "hono/request-id";
 import { publicSnippets } from "./routes/public/snippets";
 import { publicTags } from "./routes/public/tags";
 import { publicSearch } from "./routes/public/search";
@@ -12,21 +15,26 @@ import { adminImport } from "./routes/admin/import";
 import { authRoutes } from "./routes/auth";
 import { health } from "./routes/health";
 import { feedXml, llmsTxt, robotsTxt, sitemapXml } from "./routes/static";
-import { rateLimiter } from "./middleware/rate-limit";
+// import { rateLimiter } from "./middleware/rate-limit";
 import { errorHandler } from "./middleware/error";
 import { contentSignal } from "./middleware/content-signal";
+import { sessionMiddleware } from "./middleware/auth";
+import type { AppEnv } from "./types";
 
 // 注意：路由注册必须链式，否则 typeof app 只会停留在 BlankSchema，
 // hc<AppType> 推导的 client 类型会塌缩为 unknown。
-const app = new Hono()
+const app = new Hono<AppEnv>()
   // ─── 全局中间件 ───
+  .use(requestId())
+  .use(poweredBy())
   .use("*", cors())
   .use("*", contentSignal)
   .use("*", errorHandler)
+  .use("*", sessionMiddleware)
   // ─── Rate Limiting（按端点差异化） ───
-  .use("/auth/*", rateLimiter({ windowMs: 60_000, max: 10 }))
-  .use("/api/admin/*", rateLimiter({ windowMs: 60_000, max: 120 }))
-  .use("/api/public/*", rateLimiter({ windowMs: 60_000, max: 300 }))
+  // .use("/api/auth/*", rateLimiter({ windowMs: 60_000, max: 10 }))
+  // .use("/api/admin/*", rateLimiter({ windowMs: 60_000, max: 120 }))
+  // .use("/api/public/*", rateLimiter({ windowMs: 60_000, max: 300 }))
   // ─── 静态文件 ───
   .get("/llms.txt", llmsTxt)
   .get("/robots.txt", robotsTxt)
@@ -48,5 +56,6 @@ const app = new Hono()
   .route("/api/admin/export", adminExport)
   .route("/api/admin/import", adminImport);
 
+app.use("*", methodNotAllowed({ app }));
+
 export default app;
-export type AppType = typeof app;

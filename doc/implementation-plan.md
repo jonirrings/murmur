@@ -4,11 +4,11 @@
 
 ## 前置条件
 
-- [ ] Node.js ≥ 22
-- [ ] pnpm ≥ 9（`corepack enable && corepack prepare pnpm@latest --activate`）
-- [ ] Cloudflare 账号 + Wrangler CLI 已登录（`wrangler login`）
-- [ ] `m.o0x0o.com` 域名已在 Cloudflare DNS 中管理
-- [ ] GitHub 仓库 `murmur` 已创建
+- [x] Node.js ≥ 22
+- [x] pnpm ≥ 9（`corepack enable && corepack prepare pnpm@latest --activate`）
+- [x] Cloudflare 账号 + Wrangler CLI 已登录（`wrangler login`）
+- [x] `m.o0x0o.com` 域名已在 Cloudflare DNS 中管理
+- [x] GitHub 仓库 `murmur` 已创建
 
 ---
 
@@ -113,6 +113,8 @@ dist/
 **验证**: `pnpm install` 成功。
 
 ### 步骤 0.2：初始化共享包 `packages/db`
+
+**已废弃**: 数据库读写仅限`murmur-api`，因此db操作集成在其中即可。
 
 ```bash
 mkdir -p packages/db/src
