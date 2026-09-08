@@ -6,6 +6,7 @@ import { requestId } from "hono/request-id";
 import { publicSnippets } from "./routes/public/snippets";
 import { publicTags } from "./routes/public/tags";
 import { publicSearch } from "./routes/public/search";
+import { publicSite } from "./routes/public/site";
 import { adminSnippets } from "./routes/admin/snippets";
 import { adminTags } from "./routes/admin/tags";
 import { adminMedia } from "./routes/admin/media";
@@ -18,7 +19,7 @@ import { feedXml, llmsTxt, robotsTxt, sitemapXml } from "./routes/static";
 // import { rateLimiter } from "./middleware/rate-limit";
 import { errorHandler } from "./middleware/error";
 import { contentSignal } from "./middleware/content-signal";
-import { requireSession, sessionMiddleware } from "./middleware/auth";
+import { requireNoExistingUser, requireSession, sessionMiddleware } from "./middleware/auth";
 import type { AppEnv } from "./types";
 
 // 注意：路由注册必须链式，否则 typeof app 只会停留在 BlankSchema，
@@ -43,11 +44,13 @@ const app = new Hono<AppEnv>()
   // ─── 健康监测 ───
   .get("/health", health)
   // ─── Auth ───
+  .use("/api/auth/sign-up/*", requireNoExistingUser)
   .all("/api/auth/*", authRoutes)
   // ─── Public API ───
   .route("/api/public/snippets", publicSnippets)
   .route("/api/public/tags", publicTags)
   .route("/api/public/search", publicSearch)
+  .route("/api/public/site", publicSite)
   // ─── Admin API（需认证） ───
   .use("/api/admin/*", requireSession)
   .route("/api/admin/snippets", adminSnippets)

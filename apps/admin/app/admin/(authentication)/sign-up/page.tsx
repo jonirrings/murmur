@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { signUpSchema } from "@murmur/api-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,19 @@ import { apiFetch, errorMessages } from "@/lib/api";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const allowSignupQuery = useQuery({
+    queryKey: ["allow-signup"],
+    queryFn: () => apiFetch<{ allowSignup: boolean }>("/api/public/site/allow-signup"),
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (allowSignupQuery.data && !allowSignupQuery.data.allowSignup) {
+      router.replace("/admin/sign-in");
+    }
+  }, [allowSignupQuery.data, router]);
 
   const mutation = useMutation({
     mutationFn: (values: { name: string; email: string; password: string }) =>
@@ -21,6 +35,7 @@ export default function SignUpPage() {
         body: JSON.stringify(values),
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["session"] });
       router.push("/admin");
       router.refresh();
     },
@@ -33,6 +48,13 @@ export default function SignUpPage() {
       await mutation.mutateAsync(value);
     },
   });
+
+  if (allowSignupQuery.isLoading) {
+    return <p className="text-muted-foreground">加载中...</p>;
+  }
+  if (allowSignupQuery.data && !allowSignupQuery.data.allowSignup) {
+    return <p className="text-muted-foreground">注册已关闭，正在跳转...</p>;
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">

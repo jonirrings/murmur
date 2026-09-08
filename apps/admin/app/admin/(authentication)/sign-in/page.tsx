@@ -1,18 +1,32 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { signInSchema } from "@murmur/api-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiFetch, errorMessages } from "@/lib/api";
+import { apiFetch, errorMessages, type SessionInfo } from "@/lib/api";
 
 export default function SignInPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const sessionQuery = useQuery({
+    queryKey: ["session"],
+    queryFn: () => apiFetch<SessionInfo | null>("/api/auth/get-session"),
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (sessionQuery.data) {
+      router.replace("/admin");
+    }
+  }, [sessionQuery.data, router]);
 
   const mutation = useMutation({
     mutationFn: (values: { email: string; password: string }) =>
@@ -21,6 +35,7 @@ export default function SignInPage() {
         body: JSON.stringify(values),
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["session"] });
       router.push("/admin");
       router.refresh();
     },
@@ -34,12 +49,19 @@ export default function SignInPage() {
     },
   });
 
+  if (sessionQuery.isLoading) {
+    return <p className="text-muted-foreground">加载中...</p>;
+  }
+  if (sessionQuery.data) {
+    return <p className="text-muted-foreground">已登录，正在跳转...</p>;
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>登录</CardTitle>
-          <CardDescription>Murmur 管理后台</CardDescription>
+          <CardDescription>碎碎念 管理后台</CardDescription>
         </CardHeader>
         <CardContent>
           <form
