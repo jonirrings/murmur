@@ -38,4 +38,10 @@
       "id": "90fac75a844a4a2cbc285710d2165542",
     },
   ],
+  "services": [
+    {
+      "binding": "MURMUR_API",
+      "service": "murmur-api",
+    },
+  ],
 }

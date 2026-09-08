@@ -19,7 +19,7 @@
     "@fontsource/inter": "^5.3.0",
     "@murmur/api": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
-    "@tanstack/router-plugin": "^1.168.35",
+    "@tanstack/router-plugin": "^1.168.36",
     "@tanstack/solid-form": "latest",
     "@tanstack/solid-query": "latest",
     "@tanstack/solid-query-devtools": "latest",
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
     "@tanstack/devtools-vite": "latest",
-    "@tanstack/router-cli": "^1.167.33",
+    "@tanstack/router-cli": "^1.167.34",
     "@types/node": "catalog:",
     "jsdom": "^28.1.0",
     "typescript": "catalog:",

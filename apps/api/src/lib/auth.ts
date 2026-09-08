@@ -6,6 +6,11 @@ import * as process from "node:process";
 
 export const auth = betterAuth({
   emailAndPassword: { enabled: true },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   database: drizzleAdapter(db, {
     provider: "sqlite",
     usePlural: true,
